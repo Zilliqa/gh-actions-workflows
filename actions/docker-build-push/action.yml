@@ -1,0 +1,95 @@
+name: 'Docker build and push'
+description: 'Simple Docker build and push action'
+author: devops@zilliqa.com
+
+inputs:
+  file:
+    description: 'The path to the Dockerfile'
+    required: true
+  context:
+    description: 'The context to build the Dockerfile'
+    required: true
+  image-name:
+    description: 'The name of the image'
+    required: true
+  image-tag:
+    description: 'The tag of the image'
+    required: false
+    default: ''
+  build-args:
+    description: 'Arguments to build the image'
+    required: false
+  registry:
+    description: 'Docker registry'
+    required: true
+  cache-region:
+    description: 'The AWS region where is hosted the cache'
+    required: false
+    default: 'us-west-2'
+  cache-bucket:
+    description: 'The AWS bucket where is hosted the cache'
+    required: false
+    default: 'gha-cache-210478221899'
+  cache-key:
+    description: 'The key to store/retrieve the cache'
+    required: false
+    default: ''
+  cache-username:
+    description: 'The username to access the cache'
+    required: true
+  cache-password:
+    description: 'The password to access the cache'
+    required: true
+  registry-username:
+    description: 'The username to access the registry'
+    required: true
+  registry-password:
+    description: 'The password to access the registry'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Login to the registry
+      uses: docker/login-action@v2
+      if: ${{ contains(inputs.registry, '.amazonaws.com') || ( 'inputs.registry-username' != '' && 'inputs.registry-password' != '' ) }}
+      with:
+        registry: ${{ inputs.registry }}
+        username: ${{ inputs.registry-username }}
+        password: ${{ inputs.registry-password }}
+    - name: Get image tag from git commit
+      run: |
+        if [ "${{ inputs.image-tag }}" = "" ]; then
+          echo IMAGE_TAG=$(git rev-parse --short HEAD) >> $GITHUB_ENV
+        else
+          echo IMAGE_TAG='${{ inputs.image-tag }}' >> $GITHUB_ENV
+        fi
+      shell: bash
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v2
+    - name: Set up Docker Context for Buildx
+      shell: bash
+      id: buildx-context
+      run: |
+        docker context create buildx-context || true 
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+      with:
+        endpoint: buildx-context
+    - name: Set cache
+      if: ${{ inputs.cache-key != '' }}
+      run: |
+        echo CACHE_FROM='name=${{ github.event.repository.name }}/${{ inputs.cache-key }},type=s3,region=${{ inputs.cache-region }},bucket=${{ inputs.cache-bucket }},access_key_id=${{ inputs.cache-username }},secret_access_key=${{ inputs.cache-password }}' >> $GITHUB_ENV
+        echo CACHE_TO='name=${{ github.event.repository.name }}/${{ inputs.cache-key }},type=s3,region=${{ inputs.cache-region }},bucket=${{ inputs.cache-bucket }},access_key_id=${{ inputs.cache-username }},secret_access_key=${{ inputs.cache-password }},mode=max' >> $GITHUB_ENV
+      shell: bash
+    - name: Build and push Docker images
+      uses: docker/build-push-action@v3
+      with:
+        file: ${{ inputs.file }}
+        context: ${{ inputs.context }}
+        build-args: ${{ inputs.build-args }}
+        pull: true
+        push: true
+        tags: ${{ inputs.image-name }}:${{ env.IMAGE_TAG }}
+        cache-from: ${{ env.CACHE_FROM }}
+        cache-to: ${{ env.CACHE_TO }}

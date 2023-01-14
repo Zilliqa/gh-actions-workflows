@@ -1,0 +1,114 @@
+name: |-
+  CI - Build Docker image
+  
+  Build Docker image and push it to ECR
+  
+  ### Usage 
+  ```yaml
+    name: Deploy
+    on:
+      push:
+        branches: [ main ]
+    jobs:
+      ci:
+        uses: Zilliqa/gh-actions-workflows/.github/workflows/ci-dockerized-app-build-push-ecr.yml@main
+        with:
+          commitOrTag: $\{\{ env.commitOrTag \}\}
+          file: $\{\{ env.file \}\}
+          context: $\{\{ env.context \}\}
+          image-name: $\{\{ env.image-name \}\}
+          image-tag: $\{\{ env.image-tag \}\}
+          image-build-args: $\{\{ env.image-build-args s\}\}
+          registry: $\{\{ env.registry s\}\}
+          cache-key: $\{\{ env.cache-key s\}\}
+        secrets:
+          registry-username: $\{\{ secrets.registry-username \}\}
+          registry-password: $\{\{ secrets.registry-password \}\}
+          cache-username: $\{\{ secrets.cache-username \}\}
+          cache-password: $\{\{ secrets.cache-password \}\}
+  ```
+on:
+  workflow_call:
+    inputs:
+      commitOrTag:
+        description: 'The commit hash or branch or tag to checkout'
+        required: false
+        default: ''
+        type: string
+      file:
+        description: 'The path to the Dockerfile'
+        required: true
+        type: string
+      context:
+        description: 'The context to build the Dockerfile'
+        required: true
+        type: string
+      image-name:
+        description: 'The name of the image'
+        required: true
+        type: string
+      image-tag:
+        description: 'The tag of the image'
+        required: false
+        default: ''
+        type: string
+      image-build-args:
+        description: 'Arguments to build the image'
+        required: false
+        type: string
+      registry:
+        description: 'Docker registry'
+        required: true
+        type: string
+      aws-region:
+        description: 'The AWS region'
+        required: false
+        default: 'us-west-2'
+        type: string
+      cache-key:
+        description: 'The key to store/retrieve the cache'
+        required: false
+        default: ''
+        type: string
+    secrets:
+      registry-username:
+        description: 'The username to access the registry'
+        required: true
+      registry-password:
+        description: 'The password to access the registry'
+        required: true
+      cache-username:
+        description: 'The username to access the cache'
+        required: true
+      cache-password:
+        description: 'The password to access the cache'
+        required: true
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout scm ${{ inputs.commitOrTag }}'
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ inputs.commitOrTag }}
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.registry-username }}
+          aws-secret-access-key: ${{ secrets.registry-password }}
+          aws-region: ${{ inputs.aws-region }}
+      - name: Build and push Docker images
+        uses: Zilliqa/gh-actions-workflows/actions/docker-build-push@main
+        with:
+          file: ${{ inputs.file }}
+          context: ${{ inputs.context }}
+          build-args: ${{ inputs.image-build-args }}
+          image-name: ${{ inputs.image-name }}
+          image-tag: ${{ inputs.image-tag }}
+          registry: ${{ inputs.registry }}
+          cache-key: ${{ inputs.cache-key }}
+          cache-username: ${{ secrets.cache-username }}
+          cache-password: ${{ secrets.cache-password }}
