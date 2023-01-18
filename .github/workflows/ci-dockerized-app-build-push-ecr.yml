@@ -19,9 +19,9 @@ name: |-
           image-name: $\{\{ env.image-name \}\}
           image-tag: $\{\{ env.image-tag \}\}
           image-build-args: $\{\{ env.image-build-args s\}\}
-          registry: $\{\{ env.registry s\}\}
           cache-key: $\{\{ env.cache-key s\}\}
         secrets:
+          registry: $\{\{ secrets.registry s\}\}
           registry-username: $\{\{ secrets.registry-username \}\}
           registry-password: $\{\{ secrets.registry-password \}\}
           cache-username: $\{\{ secrets.cache-username \}\}
@@ -56,15 +56,6 @@ on:
         description: 'Arguments to build the image'
         required: false
         type: string
-      registry:
-        description: 'Docker registry'
-        required: true
-        type: string
-      aws-region:
-        description: 'The AWS region'
-        required: false
-        default: 'us-west-2'
-        type: string
       cache-key:
         description: 'The key to store/retrieve the cache'
         required: false
@@ -76,11 +67,17 @@ on:
         default: 'ubuntu-22.04'
         type: string
     secrets:
+      registry:
+        description: 'Docker registry'
+        required: true
       registry-username:
         description: 'The username to access the registry'
         required: true
       registry-password:
         description: 'The password to access the registry'
+        required: true
+      aws-region:
+        description: 'The AWS region'
         required: true
       cache-username:
         description: 'The username to access the cache'
@@ -104,16 +101,16 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.registry-username }}
           aws-secret-access-key: ${{ secrets.registry-password }}
-          aws-region: ${{ inputs.aws-region }}
+          aws-region: ${{ secrets.aws-region }}
       - name: Build and push Docker images
         uses: Zilliqa/gh-actions-workflows/actions/docker-build-push@main
         with:
           file: ${{ inputs.file }}
           context: ${{ inputs.context }}
           build-args: ${{ inputs.image-build-args }}
-          image-name: ${{ inputs.image-name }}
+          image-name: ${{ secrets.registry }}/${{ inputs.image-name }}
           image-tag: ${{ inputs.image-tag }}
-          registry: ${{ inputs.registry }}
+          registry: ${{ secrets.registry }}
           cache-key: ${{ inputs.cache-key }}
           cache-username: ${{ secrets.cache-username }}
           cache-password: ${{ secrets.cache-password }}
