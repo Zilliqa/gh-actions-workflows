@@ -16,6 +16,14 @@ inputs:
     description: 'The tag of the image'
     required: false
     default: ''
+  push:
+    description: 'Enable/disable image push'
+    required: false
+    default: true
+  target:
+    description: 'The target to build in the image'
+    required: false
+    default: ''
   build-args:
     description: 'Arguments to build the image'
     required: false
@@ -89,7 +97,8 @@ runs:
         context: ${{ inputs.context }}
         build-args: ${{ inputs.build-args }}
         pull: true
-        push: true
+        push: ${{ inputs.push }}
+        target: ${{ inputs.target }}
         tags: ${{ inputs.image-name }}:${{ env.IMAGE_TAG }}
         cache-from: ${{ env.CACHE_FROM }}
         cache-to: ${{ env.CACHE_TO }}

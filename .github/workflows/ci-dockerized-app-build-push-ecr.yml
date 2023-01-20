@@ -18,6 +18,8 @@ name: |-
           context: $\{\{ env.context \}\}
           image-name: $\{\{ env.image-name \}\}
           image-tag: $\{\{ env.image-tag \}\}
+          image-push: $\{\{ env.image-push \}\}
+          image-target: $\{\{ env.image-target \}\}
           image-build-args: $\{\{ env.image-build-args s\}\}
           cache-key: $\{\{ env.cache-key s\}\}
         secrets:
@@ -55,6 +57,16 @@ on:
       image-build-args:
         description: 'Arguments to build the image'
         required: false
+        type: string
+      image-push:
+        description: 'Enable/disable image push'
+        required: false
+        default: true
+        type: boolean
+      image-target:
+        description: 'The target to build in the image'
+        required: false
+        default: ''
         type: string
       cache-key:
         description: 'The key to store/retrieve the cache'
@@ -110,6 +122,8 @@ jobs:
           build-args: ${{ inputs.image-build-args }}
           image-name: ${{ secrets.registry }}/${{ inputs.image-name }}
           image-tag: ${{ inputs.image-tag }}
+          push: ${{ inputs.image-push }}
+          target: ${{ inputs.image-target }}
           registry: ${{ secrets.registry }}
           cache-key: ${{ inputs.cache-key }}
           cache-username: ${{ secrets.cache-username }}
