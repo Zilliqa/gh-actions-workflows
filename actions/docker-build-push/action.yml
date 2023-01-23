@@ -30,24 +30,6 @@ inputs:
   registry:
     description: 'Docker registry'
     required: true
-  cache-region:
-    description: 'The AWS region where is hosted the cache'
-    required: false
-    default: 'us-west-2'
-  cache-bucket:
-    description: 'The AWS bucket where is hosted the cache'
-    required: false
-    default: 'gha-cache-210478221899'
-  cache-key:
-    description: 'The key to store/retrieve the cache'
-    required: false
-    default: ''
-  cache-username:
-    description: 'The username to access the cache'
-    required: true
-  cache-password:
-    description: 'The password to access the cache'
-    required: true
   registry-username:
     description: 'The username to access the registry'
     required: true
@@ -84,12 +66,6 @@ runs:
       uses: docker/setup-buildx-action@v2
       with:
         endpoint: buildx-context
-    - name: Set cache
-      if: ${{ inputs.cache-key != '' }}
-      run: |
-        echo CACHE_FROM='name=${{ github.event.repository.name }}/${{ inputs.cache-key }},type=s3,region=${{ inputs.cache-region }},bucket=${{ inputs.cache-bucket }},access_key_id=${{ inputs.cache-username }},secret_access_key=${{ inputs.cache-password }}' >> $GITHUB_ENV
-        echo CACHE_TO='name=${{ github.event.repository.name }}/${{ inputs.cache-key }},type=s3,region=${{ inputs.cache-region }},bucket=${{ inputs.cache-bucket }},access_key_id=${{ inputs.cache-username }},secret_access_key=${{ inputs.cache-password }},mode=max' >> $GITHUB_ENV
-      shell: bash
     - name: Build and push Docker images
       uses: docker/build-push-action@v3
       with:
@@ -100,5 +76,8 @@ runs:
         push: ${{ inputs.push }}
         target: ${{ inputs.target }}
         tags: ${{ inputs.image-name }}:${{ env.IMAGE_TAG }}
-        cache-from: ${{ env.CACHE_FROM }}
-        cache-to: ${{ env.CACHE_TO }}
+        cache-from: |
+          ${{ env.CACHE_FROM_CURRENT_BRANCH }}
+          ${{ env.CACHE_FROM_DEFAULT_BRANCH }}
+        cache-to: |
+          ${{ env.CACHE_TO }}

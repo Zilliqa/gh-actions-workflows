@@ -21,7 +21,9 @@ name: |-
           image-push: $\{\{ env.image-push \}\}
           image-target: $\{\{ env.image-target \}\}
           image-build-args: $\{\{ env.image-build-args s\}\}
+          cache-type: $\{\{ env.cache-type s\}\}
           cache-key: $\{\{ env.cache-key s\}\}
+          runner: $\{\{ env.runner s\}\}
         secrets:
           registry-username: $\{\{ secrets.registry-username \}\}
           registry-password: $\{\{ secrets.registry-password \}\}
@@ -67,6 +69,11 @@ on:
         required: false
         default: ''
         type: string
+      cache-type:
+        description: 'The type of cache to use. Value allowed are gha, s3, registry'
+        required: false
+        default: ''
+        type: string
       cache-key:
         description: 'The key to store/retrieve the cache'
         required: false
@@ -96,23 +103,28 @@ jobs:
     name: build
     runs-on: ${{ inputs.runner }}
     steps:
-      - name: 'Checkout scm ${{ inputs.commitOrTag }}'
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          ref: ${{ inputs.commitOrTag }}
-      - name: Build and push Docker images
-        uses: Zilliqa/gh-actions-workflows/actions/docker-build-push@main
-        with:
-          file: ${{ inputs.file }}
-          context: ${{ inputs.context }}
-          build-args: ${{ inputs.image-build-args }}
-          image-name: ${{ inputs.image-name }}
-          image-tag: ${{ inputs.image-tag }}
-          push: ${{ inputs.image-push }}
-          target: ${{ inputs.image-target }}
-          cache-key: ${{ inputs.cache-key }}
-          cache-username: ${{ secrets.cache-username }}
-          cache-password: ${{ secrets.cache-password }}
-          registry-username: ${{ secrets.registry-username }}
-          registry-password: ${{ secrets.registry-password }}
+    - name: 'Checkout scm ${{ inputs.commitOrTag }}'
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+        ref: ${{ inputs.commitOrTag }}
+    - name: Docker cache
+      uses: Zilliqa/gh-actions-workflows/actions/docker-cache@main
+      if: ${{ inputs.cache-key != '' }}
+      with:
+        type: ${{ inputs.cache-type }}
+        key: ${{ inputs.cache-key }}
+        username: ${{ secrets.cache-username }}
+        password: ${{ secrets.cache-password }}
+    - name: Build and push Docker images
+      uses: Zilliqa/gh-actions-workflows/actions/docker-build-push@main
+      with:
+        file: ${{ inputs.file }}
+        context: ${{ inputs.context }}
+        build-args: ${{ inputs.image-build-args }}
+        image-name: ${{ inputs.image-name }}
+        image-tag: ${{ inputs.image-tag }}
+        push: ${{ inputs.image-push }}
+        target: ${{ inputs.image-target }}
+        registry-username: ${{ secrets.registry-username }}
+        registry-password: ${{ secrets.registry-password }}
