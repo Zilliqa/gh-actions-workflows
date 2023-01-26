@@ -36,6 +36,10 @@ inputs:
   registry-password:
     description: 'The password to access the registry'
     required: true
+outputs:
+  image-tag:
+    description: "Tag given to the image"
+    value: ${{ steps.set-tag.outputs.tag }}
 
 runs:
   using: "composite"
@@ -48,11 +52,12 @@ runs:
         username: ${{ inputs.registry-username }}
         password: ${{ inputs.registry-password }}
     - name: Get image tag from git commit
+      id: set-tag
       run: |
         if [ "${{ inputs.image-tag }}" = "" ]; then
-          echo IMAGE_TAG=$(git rev-parse --short HEAD) >> $GITHUB_ENV
+          echo "tag=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
         else
-          echo IMAGE_TAG='${{ inputs.image-tag }}' >> $GITHUB_ENV
+          echo "tag=${{ inputs.image-tag }}" >> $GITHUB_OUTPUT
         fi
       shell: bash
     - name: Set up QEMU
@@ -75,7 +80,7 @@ runs:
         pull: true
         push: ${{ inputs.push }}
         target: ${{ inputs.target }}
-        tags: ${{ inputs.image-name }}:${{ env.IMAGE_TAG }}
+        tags: ${{ inputs.image-name }}:${{ steps.set-tag.outputs.tag }}
         cache-from: |
           ${{ env.CACHE_FROM_CURRENT_BRANCH }}
           ${{ env.CACHE_FROM_DEFAULT_BRANCH }}
