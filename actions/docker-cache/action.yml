@@ -10,7 +10,7 @@ inputs:
   bucket:
     description: 'The AWS bucket where is hosted the cache'
     required: false
-    default: 'gha-cache-210478221899'
+    default: '298213327629-github-actions-cache'
   username:
     description: 'The username to access the cache'
     required: true
@@ -24,7 +24,6 @@ inputs:
   key:
     description: 'The key to store/retrieve the cache'
     required: true
-    default: 'gha'
 
 runs:
   using: "composite"
