@@ -13,10 +13,10 @@ inputs:
     default: '298213327629-github-actions-cache'
   username:
     description: 'The username to access the cache'
-    required: true
+    required: false
   password:
     description: 'The password to access the cache'
-    required: true
+    required: false
   type:
     description: 'The password to access the registry'
     required: true

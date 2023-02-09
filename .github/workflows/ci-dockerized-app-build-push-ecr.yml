@@ -26,8 +26,8 @@ name: |-
           runner: $\{\{ env.runner s\}\}
         secrets:
           registry: $\{\{ secrets.registry s\}\}
-          registry-username: $\{\{ secrets.registry-username \}\}
-          registry-password: $\{\{ secrets.registry-password \}\}
+          role-to-assume: $\{\{ secrets.role-to-assume \}\}
+          oidc-role: $\{\{ secrets.oidc-role \}\}
           aws-region: $\{\{ secrets.aws-region \}\}
           cache-username: $\{\{ secrets.cache-username \}\}
           cache-password: $\{\{ secrets.cache-password \}\}
@@ -90,10 +90,10 @@ on:
       registry:
         description: 'Docker registry'
         required: true
-      registry-username:
+      role-to-assume:
         description: 'The username to access the registry'
         required: true
-      registry-password:
+      oidc-role:
         description: 'The password to access the registry'
         required: true
       aws-region:
@@ -101,13 +101,16 @@ on:
         required: true
       cache-username:
         description: 'The username to access the cache'
-        required: true
+        required: false
       cache-password:
         description: 'The password to access the cache'
-        required: true
+        required: false
 
 jobs:
   build:
+    permissions:
+      id-token: write
+      contents: write
     name: build
     runs-on: ${{ inputs.runner }}
     steps:
@@ -117,11 +120,11 @@ jobs:
         fetch-depth: 0
         ref: ${{ inputs.commitOrTag }}
     - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v1
+      uses: Zilliqa/gh-actions-workflows/actions/configure-aws-credentials@main
       with:
-        aws-access-key-id: ${{ secrets.registry-username }}
-        aws-secret-access-key: ${{ secrets.registry-password }}
         aws-region: ${{ secrets.aws-region }}
+        role-to-assume: ${{ secrets.role-to-assume }}
+        oidc-role: ${{ secrets.oidc-role }}
     - name: Docker cache
       uses: Zilliqa/gh-actions-workflows/actions/docker-cache@main
       if: ${{ inputs.cache-key != '' }}
