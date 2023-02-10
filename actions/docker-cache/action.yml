@@ -45,9 +45,9 @@ runs:
           echo CACHE_FROM_DEFAULT_BRANCH="name=${{ github.event.repository.name }}/${{ github.event.repository.default_branch }}/${{ inputs.key }},type=s3,region=${{ inputs.region }},bucket=${{ inputs.bucket }},access_key_id=${{ inputs.username }},secret_access_key=${{ inputs.password }}" >> $GITHUB_ENV
           echo CACHE_TO="name=${{ github.event.repository.name }}/$(git rev-parse --abbrev-ref HEAD | sed 's/[^a-zA-Z0-9]/-/g')/${{ inputs.key }},type=s3,region=${{ inputs.region }},bucket=${{ inputs.bucket }},access_key_id=${{ inputs.username }},secret_access_key=${{ inputs.password }},mode=max" >> $GITHUB_ENV
         elif [ "${{ inputs.type }}" = "gha" ]; then
-          echo CACHE_FROM_CURRENT_BRANCH='type=gha' >> $GITHUB_ENV
+          echo CACHE_FROM_CURRENT_BRANCH='type=gha,scope=${{ github.event.repository.name }}-${{ inputs.key }}' >> $GITHUB_ENV
           echo CACHE_FROM_DEFAULT_BRANCH='' >> $GITHUB_ENV
-          echo CACHE_TO='type=gha,mode=max' >> $GITHUB_ENV
+          echo CACHE_TO='type=gha,scope=${{ github.event.repository.name }}-${{ inputs.key }},mode=max' >> $GITHUB_ENV
         else
           echo CACHE_FROM_CURRENT_BRANCH='' >> $GITHUB_ENV
           echo CACHE_FROM_DEFAULT_BRANCH='' >> $GITHUB_ENV
