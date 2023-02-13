@@ -1,0 +1,26 @@
+name: 'Configure AWS profile'
+description: 'The action configures the given AWS profile'
+author: devops@zilliqa.com
+
+inputs:
+  aws-region:
+    description: 'The AWS region'
+    required: true
+  profile-name:
+    description: 'The profile to add to the AWS config file'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+  - name: Set AWS profile
+    shell: bash
+    run: |
+      mkdir -pv ~/.aws
+      echo "[profile ${{ inputs.profile-name }}]" >> ~/.aws/config
+      echo "aws_access_key_id=${{ env.AWS_ACCESS_KEY_ID }}" >> ~/.aws/config
+      echo "aws_secret_access_key=${{ env.AWS_SECRET_ACCESS_KEY }}" >> ~/.aws/config
+      echo "aws_session_token=${{ env.AWS_SESSION_TOKEN }}" >> ~/.aws/config
+      echo "region=${{ inputs.aws-region }}" >> ~/.aws/config
+      echo "output = json" >> ~/.aws/config
+      cat ~/.aws/config
