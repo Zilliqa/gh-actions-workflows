@@ -80,7 +80,7 @@ runs:
         pull: true
         push: ${{ inputs.push }}
         target: ${{ inputs.target }}
-        tags: ${{ inputs.image-name }}:${{ steps.set-tag.outputs.tag }}
+        tags: ${{ inputs.image-name }}:${{ steps.set-tag.outputs.tag }},${{ inputs.image-name }}:latest
         cache-from: |
           ${{ env.CACHE_FROM_CURRENT_BRANCH }}
           ${{ env.CACHE_FROM_DEFAULT_BRANCH }}
