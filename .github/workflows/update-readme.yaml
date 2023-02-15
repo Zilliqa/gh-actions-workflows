@@ -36,14 +36,14 @@ jobs:
         run: |
           echo "README.md has uncommitted changes"
           exit 1
-      # - name: Create Pull Request
-      #   if: failure()
-      #   uses: peter-evans/create-pull-request@v4
-      #   with:
-      #     base: "main"
-      #     labels: "merge when passing"
-      #     title: "Updated README.md"
-      #     branch: "chore/update-readme"
-      #     commit-message: "Updated README.md"
-      #     body: "Updated README.md"
-      #     token: ${{ secrets.PAT_TOKEN }}
+      - name: Create Pull Request
+        if: failure()
+        uses: peter-evans/create-pull-request@v4
+        with:
+          base: "main"
+          labels: "merge when passing"
+          title: "Updated README.md"
+          branch: "chore/update-readme"
+          commit-message: "Updated README.md"
+          body: "Updated README.md"
+          token: ${{ secrets.PAT_TOKEN }}
