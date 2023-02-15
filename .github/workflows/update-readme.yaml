@@ -8,6 +8,9 @@ on:
 jobs:
   sync-assets:
     runs-on: ubuntu-latest
+    env:
+      # ACTION_PATH: actions/configure-aws-credentials
+      ACTION_PATH: .
     steps:
       - uses: actions/checkout@v3
         with:
@@ -16,27 +19,25 @@ jobs:
       - name: Run auto-doc
         uses: tj-actions/auto-doc@v1
         with:
-          action: "actions/configure-aws-credentials/action.yml"
-          output: "actions/configure-aws-credentials/README.md"
+          action: "${{ env.ACTION_PATH }}/action.yml"
+          output: "${{ env.ACTION_PATH }}/README.md"
 
       - name: Run remark
         uses: tj-actions/remark@v3
         with:
           files: |
-            actions/configure-aws-credentials/README.md
+            ${{ env.ACTION_PATH }}/README.md
 
       - name: Verify Changed files
         uses: tj-actions/verify-changed-files@v13
         id: verify_changed_files
         with:
           files: |
-            actions/configure-aws-credentials/README.md
-      
+            ${{ env.ACTION_PATH }}/README.md
 
       - name: Content of README.md
         shell: bash
-        run: |
-          cat actions/configure-aws-credentials/README.md
+        run: cat ${{ env.ACTION_PATH }}/README.md
 
       - name: README.md changed
         if: steps.verify_changed_files.outputs.files_changed == 'true'
