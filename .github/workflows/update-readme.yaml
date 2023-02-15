@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       # ACTION_PATH: actions/configure-aws-credentials
-      ACTION_PATH: .
+      ACTION_PATH: ${{ github.workspace	}}
     steps:
       - uses: actions/checkout@v3
         with:
