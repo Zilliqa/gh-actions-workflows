@@ -51,7 +51,7 @@ jobs:
         if: failure()
         uses: peter-evans/create-pull-request@v4
         with:
-          base: "main"
+          base: "doc"
           labels: "merge when passing"
           title: "Updated README.md"
           branch: "chore/update-readme"
