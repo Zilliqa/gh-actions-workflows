@@ -37,7 +37,9 @@ jobs:
 
       - name: Content of README.md
         shell: bash
-        run: cat ${{ env.ACTION_PATH }}/README.md
+        run: |
+          git status
+          cat ${{ env.ACTION_PATH }}/README.md
 
       - name: README.md changed
         if: steps.verify_changed_files.outputs.files_changed == 'true'
