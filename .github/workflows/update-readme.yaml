@@ -31,11 +31,19 @@ jobs:
         with:
           files: |
             actions/configure-aws-credentials/README.md
+      
+
+      - name: Content of README.md
+        shell: bash
+        run: |
+          cat actions/configure-aws-credentials/README.md
+
       - name: README.md changed
         if: steps.verify_changed_files.outputs.files_changed == 'true'
         run: |
           echo "README.md has uncommitted changes"
           exit 1
+      
       - name: Create Pull Request
         if: failure()
         uses: peter-evans/create-pull-request@v4
