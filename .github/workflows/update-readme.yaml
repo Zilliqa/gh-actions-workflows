@@ -21,16 +21,8 @@ jobs:
         with:
           action: "${{ env.ACTION_PATH }}/action.yml"
           output: "${{ env.ACTION_PATH }}/README.md"
-          input_columns:
-          - "Input"
-          - "Type"
-          - "Required"
-          - "Default"
-          - "Description"
-          output_columns:
-          - "Output"
-          - "Type"
-          - "Description"
+          input_columns: "Input,Type,Required,Default,Description"
+          output_columns: "Output,Type,Description"
 
       - name: Run remark
         uses: tj-actions/remark@v3
