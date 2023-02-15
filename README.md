@@ -1,6 +1,6 @@
 # Configure AWS credentials GitHub Action
 
-<!--- BEGIN_ACTION_DOCS --->
+<!-- AUTO-DOC-INPUT:START - Do not remove or modify this section -->
 
 
-<!--- END_ACTION_DOCS --->
+<!-- AUTO-DOC-INPUT:END -->
