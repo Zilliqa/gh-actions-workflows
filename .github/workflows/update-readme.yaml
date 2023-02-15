@@ -39,7 +39,7 @@ jobs:
         id: verify_changed_files
         with:
           files: |
-            ${{ env.ACTION_PATH }}/README.md
+            README.md
 
       - name: README.md changed
         if: steps.verify_changed_files.outputs.files_changed == 'true'
