@@ -3,7 +3,7 @@ name: Format README.md
 on:
   push:
     branches:
-      - main
+      - doc
 
 jobs:
   sync-assets:
@@ -39,7 +39,7 @@ jobs:
         if: steps.verify_changed_files.outputs.files_changed == 'true'
         uses: peter-evans/create-pull-request@v4
         with:
-          base: "main"
+          base: "doc"
           labels: "merge when passing"
           title: "Updated ${{ matrix.path }}/README.md"
           branch: "chore/update-readme/${{ matrix.path }}"
