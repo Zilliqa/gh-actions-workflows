@@ -8,9 +8,9 @@ on:
 jobs:
   sync-assets:
     runs-on: ubuntu-latest
-    env:
-      # ACTION_PATH: actions/configure-aws-credentials
-      ACTION_PATH: .
+    strategy:
+      matrix:
+        path: [configure-aws-credentials, configure-aws-profile, docker-build-push, docker-cache]
     steps:
       - uses: actions/checkout@v3
         with:
@@ -19,27 +19,21 @@ jobs:
       - name: Run auto-doc
         uses: tj-actions/auto-doc@v1
         with:
-          action: "${{ env.ACTION_PATH }}/action.yml"
-          output: "${{ env.ACTION_PATH }}/README.md"
+          action: "actions/${{ matrix.path }}/action.yml"
+          output: "actions/${{ matrix.path }}/README.md"
 
       - name: Run remark
         uses: tj-actions/remark@v3
         with:
           files: |
-            ${{ env.ACTION_PATH }}/README.md
-
-      - name: Content of README.md
-        shell: bash
-        run: |
-          git status
-          cat ${{ env.ACTION_PATH }}/README.md
+            actions/${{ matrix.path }}/README.md
 
       - name: Verify Changed files
         uses: tj-actions/verify-changed-files@v13
         id: verify_changed_files
         with:
           files: |
-            ${{ env.ACTION_PATH }}/README.md
+            actions/${{ matrix.path }}/README.md
 
       - name: README.md changed
         if: steps.verify_changed_files.outputs.files_changed == 'true'
@@ -53,8 +47,8 @@ jobs:
         with:
           base: "doc"
           labels: "merge when passing"
-          title: "Updated README.md"
-          branch: "chore/update-readme"
-          commit-message: "Updated README.md"
+          title: "Updated ${{ matrix.path }}/README.md"
+          branch: "chore/update-readme/${{ matrix.path }}"
+          commit-message: "Updated ${{ matrix.path }}/README.md"
           body: "Updated README.md"
           token: ${{ secrets.PAT_TOKEN }}
