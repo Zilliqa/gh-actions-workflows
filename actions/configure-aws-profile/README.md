@@ -1,4 +1,4 @@
-# Configure AWS credentials GitHub Action
+# Configure AWS profile GitHub Action
 
 ## Inputs
 

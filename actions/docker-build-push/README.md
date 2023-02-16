@@ -1,4 +1,4 @@
-# Configure AWS credentials GitHub Action
+# Docker build and push GitHub Action
 
 ## Inputs
 
