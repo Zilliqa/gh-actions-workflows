@@ -2,8 +2,8 @@ name: Format README.md
 
 on:
   push:
-    # branches:
-      # - main
+    branches:
+      - doc
 
 jobs:
   sync-assets:
@@ -34,15 +34,9 @@ jobs:
         with:
           files: |
             actions/${{ matrix.path }}/README.md
-
-      - name: README.md changed
-        if: steps.verify_changed_files.outputs.files_changed == 'true'
-        run: |
-          echo "README.md has uncommitted changes"
-          exit 1
       
       - name: Create Pull Request
-        if: failure()
+        if: steps.verify_changed_files.outputs.files_changed == 'true'
         uses: peter-evans/create-pull-request@v4
         with:
           base: "doc"
