@@ -4,14 +4,18 @@
 
 <!-- AUTO-DOC-INPUT:START - Do not remove or modify this section -->
 
-|   INPUT   |  TYPE  | REQUIRED |          DEFAULT           |                                     DESCRIPTION                                     |
-|-----------|--------|----------|----------------------------|-------------------------------------------------------------------------------------|
-| base_sha  | string | false    |                            | Specify a base commit SHA<br>used for comparing changes                             |
-| files     | string | false    | `"README.md\nREADME.md\n"` | Check for changes using only<br>this list of files (Defaults<br>to the entire repo) |
-| path      | string | false    |                            | Specify a relative path under<br>$GITHUB_WORKSPACE to locate the repository<br>     |
-| separator | string | true     | `"\|"`                     | Split character for array output<br>                                                |
-| sha       | string | true     | `"${{ github.sha }}"`      | Specify a current commit SHA<br>used for comparing changes                          |
-| token     | string | true     | `"${{ github.token }}"`    | Github token or Repo Scoped<br>Personal Access Token                                |
+|       INPUT       |  TYPE  | REQUIRED | DEFAULT  |             DESCRIPTION             |
+|-------------------|--------|----------|----------|-------------------------------------|
+|    build-args     | string |  false   |          |    Arguments to build the image     |
+|      context      | string |   true   |          | The context to build the Dockerfile |
+|       file        | string |   true   |          |     The path to the Dockerfile      |
+|    image-name     | string |   true   |          |        The name of the image        |
+|     image-tag     | string |  false   |          |        The tag of the image         |
+|       push        | string |  false   | `"true"` |      Enable/disable image push      |
+|     registry      | string |   true   |          |           Docker registry           |
+| registry-password | string |   true   |          | The password to access the registry |
+| registry-username | string |   true   |          | The username to access the registry |
+|      target       | string |  false   |          | The target to build in the<br>image |
 
 <!-- AUTO-DOC-INPUT:END -->
 
@@ -19,22 +23,8 @@
 
 <!-- AUTO-DOC-OUTPUT:START - Do not remove or modify this section -->
 
-|             OUTPUT             |  TYPE  |
-|--------------------------------|--------|
-| added_files                    | string |
-| all_changed_and_modified_files | string |
-| all_modified_files             | string |
-| any_changed                    | string |
-| any_deleted                    | string |
-| copied_files                   | string |
-| deleted_files                  | string |
-| modified_files                 | string |
-| only_changed                   | string |
-| only_deleted                   | string |
-| other_deleted_files            | string |
-| renamed_files                  | string |
-| type_changed_files             | string |
-| unknown_files                  | string |
-| unmerged_files                 | string |
+|  OUTPUT   |  TYPE  |      DESCRIPTION       |
+|-----------|--------|------------------------|
+| image-tag | string | Tag given to the image |
 
 <!-- AUTO-DOC-OUTPUT:END -->
