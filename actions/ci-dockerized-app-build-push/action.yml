@@ -1,0 +1,117 @@
+name: 'CI - Build Docker image'
+description: 'The action performs the login with role to an AWS account'
+author: devops@zilliqa.com
+
+inputs:
+  file:
+    description: 'The path to the Dockerfile'
+    required: true
+  context:
+    description: 'The context to build the Dockerfile'
+    required: false
+  build-args:
+    description: 'Arguments to build the image'
+    required: false
+  pull:
+    description: 'Enable/disable image pull'
+    required: false
+    default: true
+  push:
+    description: 'Enable/disable image push'
+    required: false
+    default: true
+  target:
+    description: 'The target to build in the image'
+    required: false
+  tag:
+    description: 'The tag of the image'
+    required: true
+  tag-length:
+    description: 'The number of chars composing the tag from the short commit sha'
+    required: false
+  tag-latest:
+    description: 'If true add the tag latest'
+    required: false
+  registry:
+    description: 'Docker registry'
+    required: true
+  registry-username:
+    description: 'The username to access the registry'
+    required: false
+  registry-password:
+    description: 'The password to access the registry'
+    required: false
+  aws-region:
+    description: 'The AWS region'
+    required: false
+  role-to-assume:
+    description: 'The AWS role to assume to login to the registry'
+    required: false
+  oidc-role:
+    description: 'The AWS role trusting the OIDC'
+    required: false
+  cache-key:
+    description: 'The key to store/retrieve the cache'
+    required: false
+    default: ''
+
+outputs:
+  imageid:
+    description: 'Image ID'
+    value: ${{ steps.build-push.outputs.imageid }}
+  digest:
+    description: 'Image digest'
+    value: ${{ steps.build-push.outputs.digest }}
+  metadata:
+    description: 'Build result metadata'
+    value: ${{ steps.build-push.outputs.metadata }}
+  imagetags:
+    description: "Generated tag"
+    value: ${{ steps.image-tags.outputs.tags }}
+
+runs:
+  using: "composite"
+  steps:
+  - name: Docker cache
+    uses: Zilliqa/gh-actions-workflows/actions/docker-cache@main
+    id: docker-cache
+    with:
+      key: ${{ inputs.cache-key }}
+  - name: Set image tags
+    uses: Zilliqa/gh-actions-workflows/actions/generate-tag@main
+    id: image-tags
+    with:
+      tag: ${{ inputs.tag }}
+      length: ${{ inputs.tag-length }}
+      latest: ${{ inputs.tag-latest }}
+  - name: Configure AWS Credentials
+    uses: Zilliqa/gh-actions-workflows/actions/configure-aws-credentials@main
+    if: ${{ contains(inputs.registry, '.amazonaws.com') }}
+    with:
+      aws-region: ${{ inputs.aws-region }}
+      role-to-assume: ${{ inputs.role-to-assume }}
+      oidc-role: ${{ inputs.oidc-role }}
+  - name: Login to AWS registry
+    uses: docker/login-action@v2
+    if: ${{ contains(inputs.registry, '.amazonaws.com') }}
+    with:
+      registry: ${{ inputs.registry }}
+  - name: Login to Dockerhub
+    uses: docker/login-action@v2
+    if: ${{ inputs.registry-username != '' && inputs.registry-password != '' }}
+    with:
+      username: ${{ inputs.registry-username }}
+      password: ${{ inputs.registry-password }}
+  - name: Build and push Docker images
+    uses: Zilliqa/gh-actions-workflows/actions/docker-build-push@main
+    id: build-push
+    with:
+      file: ${{ inputs.file }}
+      context: ${{ inputs.context }}
+      build-args: ${{ inputs.build-args }}
+      pull: ${{ inputs.pull }}
+      push: ${{ inputs.push }}
+      target: ${{ inputs.target }}
+      tags: ${{ steps.image-tags.outputs.tags }}
+      cache-from: ${{ steps.docker-cache.outputs.cachefrom }}
+      cache-to: ${{ steps.docker-cache.outputs.cacheto }}

@@ -1,7 +1,11 @@
 name: Generate actions documentation
 
 on:
+<<<<<<< HEAD
   push:
+=======
+  pull_request:
+>>>>>>> d23892b (feat: add auto-doc action to document the private actions (#18))
     branches:
       - main
 
@@ -10,7 +14,11 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
+<<<<<<< HEAD
         path: [configure-aws-credentials, configure-aws-profile, docker-build-push, docker-cache]
+=======
+        path: [ci-dockerized-app-build-push, configure-aws-credentials, configure-aws-profile, docker-build-push, docker-cache, generate-tag]
+>>>>>>> d23892b (feat: add auto-doc action to document the private actions (#18))
     steps:
       - uses: actions/checkout@v3
         with:
@@ -39,10 +47,18 @@ jobs:
         if: steps.verify_changed_files.outputs.files_changed == 'true'
         uses: peter-evans/create-pull-request@v4
         with:
+<<<<<<< HEAD
           base: "main"
+=======
+          base: ${{ github.head_ref }}
+>>>>>>> d23892b (feat: add auto-doc action to document the private actions (#18))
           labels: "merge when passing"
           title: "Updated ${{ matrix.path }}/README.md"
           branch: "chore/update-readme/${{ matrix.path }}"
           commit-message: "Updated ${{ matrix.path }}/README.md"
           body: "Updated README.md"
+<<<<<<< HEAD
           token: ${{ secrets.PAT_TOKEN }}
+=======
+          token: ${{ secrets.PAT_TOKEN }}
+>>>>>>> d23892b (feat: add auto-doc action to document the private actions (#18))

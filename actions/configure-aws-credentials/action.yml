@@ -41,5 +41,5 @@ runs:
     uses: Zilliqa/gh-actions-workflows/actions/configure-aws-profile@main
     if: ${{ inputs.profile-name != '' }}
     with:
+      name: ${{ inputs.profile-name }}
       aws-region: ${{ inputs.aws-region }}
-      profile-name: ${{ inputs.profile-name }}

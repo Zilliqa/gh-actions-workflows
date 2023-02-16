@@ -1,0 +1,47 @@
+name: Test - Configure AWS profile
+
+on:
+  workflow_dispatch:
+  push:
+    paths-ignore:
+    - '**.md'
+
+jobs:
+  test-given-name:
+    name: test-given-name
+    runs-on: ubuntu-22.04
+    steps:
+    - name: Configure AWS profile
+      uses: Zilliqa/gh-actions-workflows/actions/configure-aws-profile@main
+      with:
+        name: test
+        aws-region: us-west-2
+    - name: Show output
+      run: |
+        cat ~/.aws/config
+    - name: Test configuration
+      run: |
+        if ! grep -q "[profile ${{ inputs.name }}]" ~/.aws/config; then
+          echo "Error - Profile has not been generate"
+        fi
+    - name: Clean
+      run: |
+        rm -f ~/.aws/config
+
+  test-no-name:
+    name: test-no-name
+    runs-on: ubuntu-22.04
+    steps:
+    - name: Configure AWS profile
+      uses: Zilliqa/gh-actions-workflows/actions/configure-aws-profile@main
+      with:
+        name: ''
+        aws-region: ''
+    - name: Test configuration
+      run: |
+        if test -f "~/.aws/config"; then
+          echo "~/.aws/config exists"
+          cat ~/.aws/config
+          exit 1
+        fi
+        echo "~/.aws/config does not exist as expected"
