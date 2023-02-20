@@ -1,0 +1,90 @@
+name: Test - Generate tag
+
+on:
+  workflow_dispatch:
+  push:
+    paths-ignore:
+    - '**.md'
+
+jobs:
+  test-generate-tag:
+    name: test-generate-tag
+    runs-on: ubuntu-22.04
+    steps:
+    - name: 'Checkout scm'
+      uses: actions/checkout@v3
+
+    - name: Get short commit sha
+      id: short-commit-sha
+      run: |
+        echo "sha7=$(git rev-parse --short=7 HEAD)" >> $GITHUB_OUTPUT
+        echo "sha9=$(git rev-parse --short=9 HEAD)" >> $GITHUB_OUTPUT
+      shell: bash
+
+    - name: Generated commit hash tag 7 chars
+      uses: Zilliqa/gh-actions-workflows/actions/generate-tag@main
+      id: generate-tag-7
+      with:
+        tag: test
+        length: 7
+        latest: false
+    - name: Show output - Generated commit hash tag 7 chars
+      run: |
+        echo "Generated tag: ${{ steps.generate-tag-7.outputs.tags }}"
+    - name: Test - Generated commit hash tag 7 chars
+      if: steps.generate-tag-7.outputs.tags != format('test:{0}', steps.short-commit-sha.outputs.sha7)
+      run: |
+        echo "Generated tag is invalid: ${{ steps.generate-tag-7.outputs.tags }}"
+        echo "Expected tag is: test:${{ steps.short-commit-sha.outputs.sha7 }}"
+        exit 1
+
+    - name: Generated commit hash tag 9 chars and latest
+      uses: Zilliqa/gh-actions-workflows/actions/generate-tag@main
+      id: generate-tag-9-latest
+      with:
+        tag: test
+        length: 9
+        latest: true
+    - name: Show output - Generated commit hash tag 9 chars and latest
+      run: |
+        echo "Generated tag: ${{ steps.generate-tag-9-latest.outputs.tags }}"
+    - name: Test - Generated commit hash tag 9 chars and latest
+      if: steps.generate-tag-9-latest.outputs.tags != format('test:{0},test:latest', steps.short-commit-sha.outputs.sha9)
+      run: |
+        echo "Generated tag is invalid: ${{ steps.generate-tag-9-latest.outputs.tags }}"
+        echo "Expected tag is: test:${{ steps.short-commit-sha.outputs.sha9 }},test:latest"
+        exit 1
+
+    - name: Not generated commit hash tag
+      uses: Zilliqa/gh-actions-workflows/actions/generate-tag@main
+      id: no-generate-tag-7
+      with:
+        tag: test:v1
+        length: 7
+        latest: false
+    - name: Show output - Not generated commit hash tag
+      run: |
+        echo "Generated tag: ${{ steps.no-generate-tag-7.outputs.tags }}"
+    - name: Test - Not generated commit hash tag
+      if: steps.no-generate-tag-7.outputs.tags != 'test:v1'
+      run: |
+        echo "Generated tag is invalid: ${{ steps.no-generate-tag-7.outputs.tags }}"
+        echo "Expected tag is: test:v1"
+        exit 1
+
+    - name: Not generated commit hash tag and latest
+      uses: Zilliqa/gh-actions-workflows/actions/generate-tag@main
+      id: no-generate-tag-9-latest
+      with:
+        tag: test:v1
+        length: 9
+        latest: true
+    - name: Show output - Not generated commit hash tag and latest
+      run: |
+        echo "Generated tag: ${{ steps.no-generate-tag-9-latest.outputs.tags }}"
+    - name: Test - Not generated commit hash tag and latest
+      if: steps.no-generate-tag-9-latest.outputs.tags != 'test:v1,test:latest'
+      run: |
+        echo "Generated tag is invalid: ${{ steps.no-generate-tag-9-latest.outputs.tags }}"
+        echo "Expected tag is: test:v1,test:latest"
+        exit 1

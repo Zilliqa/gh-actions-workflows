@@ -1,0 +1,51 @@
+name: Test - Docker cache
+
+on:
+  workflow_dispatch:
+  push:
+    paths-ignore:
+    - '**.md'
+
+jobs:
+  test-docker-cache:
+    name: test-docker-cache
+    runs-on: ubuntu-22.04
+    steps:
+    - name: Given key
+      uses: Zilliqa/gh-actions-workflows/actions/docker-cache@main
+      id: given-key
+      with:
+        key: test
+    - name: Show output - Given key
+      run: |
+        echo "Cache from: ${{ steps.given-key.outputs.cachefrom }}"
+        echo "Cache to: ${{ steps.given-key.outputs.cacheto }}"
+    - name: Test - Given key
+      if: steps.given-key.outputs.cachefrom != format('type=gha,scope={0}-test', github.event.repository.name) || 
+          steps.given-key.outputs.cacheto != format('type=gha,scope={0}-test,mode=max', github.event.repository.name)
+      run: |
+        echo "Cache params invalid:"
+        echo "Cache from: ${{ steps.given-key.outputs.cachefrom }}"
+        echo "Cache to: ${{ steps.given-key.outputs.cacheto }}"
+        echo "Expected params are:"
+        echo "Cache from: type=gha,scope=${{ github.event.repository.name }}-test"
+        echo "Cache to: type=gha,scope=${{ github.event.repository.name }}-test,mode=max"
+        exit 1
+
+    - name: No key
+      uses: Zilliqa/gh-actions-workflows/actions/docker-cache@main
+      id: no-key
+      with:
+        key: ''
+    - name: Show output - No key
+      run: |
+        echo "Cache from: ${{ steps.no-key.outputs.cachefrom }}"
+        echo "Cache to: ${{ steps.no-key.outputs.cacheto }}"
+    - name: Test - No key
+      if: steps.no-key.outputs.cachefrom != '' || steps.no-key.outputs.cacheto != ''
+      run: |
+        echo "Cache params invalid:"
+        echo "Cache from: ${{ steps.no-key.outputs.cachefrom }}"
+        echo "Cache to: ${{ steps.no-key.outputs.cacheto }}"
+        echo "Expected params are empty strings"
+        exit 1
