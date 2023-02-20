@@ -1,4 +1,4 @@
-# Configure AWS credentials GitHub Action
+# CI Dockerized app build and push
 
 ## Inputs
 

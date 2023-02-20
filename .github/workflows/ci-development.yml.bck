@@ -1,0 +1,63 @@
+name: CI - Build and push image
+
+on:
+  workflow_dispatch:
+  push:
+    paths-ignore:
+    - '**.md'
+
+jobs:
+  zilliqa-staking-verifier:
+    permissions:
+      id-token: write
+      contents: write
+    name: zilliqa-staking-verifier
+    runs-on: ubuntu-22.04
+    steps:
+    - name: 'Checkout scm'
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    - name: Docker build and push
+      uses: Zilliqa/gh-actions-workflows/actions/ci-dockerized-app-build-push@gha
+      with:
+        file: scripts/Dockerfile
+        context: 'scripts'
+        push: ${{ github.ref == 'refs/heads/${{ github.event.repository.default_branch }}' }}
+        tag: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-west-2.amazonaws.com/zilliqa-staking-verifier
+        tag-length: 7
+        tag-latest: ${{ github.ref == 'refs/heads/${{ github.event.repository.default_branch }}' }}
+        registry: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-west-2.amazonaws.com
+        aws-region: us-west-2
+        role-to-assume: ${{ secrets.ECR_DEPLOYER_ROLE }}
+        oidc-role: ${{ secrets.OIDC_ROLE }}
+        cache-key: 'zilliqa-staking-verifier'
+
+
+
+
+        - name: Show output
+        run: |
+          echo "Default Branch: ${{ steps.branch-name.outputs.default_branch }}"
+          echo "Current Branch: ${{ steps.branch-name.outputs.current_branch }}"
+          echo "Base Ref: ${{ steps.branch-name.outputs.base_ref_branch }}"
+          echo "Head Ref: ${{ steps.branch-name.outputs.head_ref_branch }}"
+          echo "Ref: ${{ steps.branch-name.outputs.ref_branch }}"
+          echo "Is Default: ${{ steps.branch-name.outputs.is_default }}"
+          echo "Is Tag: ${{ steps.branch-name.outputs.is_tag }}"
+          echo "Current tag: ${{ steps.branch-name.outputs.tag }}"
+      - name: Test is_default output for pull request
+        if: (github.event_name == 'pull_request' || github.event_name == 'pull_request_target') && steps.branch-name.outputs.is_tag == 'false' && steps.branch-name.outputs.is_default != 'false'
+        run: |
+          echo "Is default is invalid: ${{ steps.branch-name.outputs.is_default }}"
+          exit 1
+      - name: Test is_default output for non pull request
+        if: github.event_name != 'pull_request' && github.event_name != 'pull_request_target' && steps.branch-name.outputs.is_tag == 'false' && steps.branch-name.outputs.is_default != 'true'
+        run: |
+          echo "Is default is invalid: ${{ steps.branch-name.outputs.is_default }}"
+          exit 1
+      - name: Test base_ref_branch output
+        if: (github.event_name == 'pull_request' || github.event_name == 'pull_request_target') && steps.branch-name.outputs.is_tag == 'false' && !steps.branch-name.outputs.base_ref_branch
+        run: |
+          echo "Base ref unset: ${{ steps.branch-name.outputs.base_ref_branch }}"
+          exit 1

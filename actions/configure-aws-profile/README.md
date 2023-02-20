@@ -12,3 +12,11 @@
 <!-- AUTO-DOC-INPUT:END -->
 
 ## Outputs
+
+<!-- AUTO-DOC-OUTPUT:START - Do not remove or modify this section -->
+
+|  OUTPUT   |  TYPE  |      DESCRIPTION       |
+|-----------|--------|------------------------|
+| image-tag | string | Tag given to the image |
+
+<!-- AUTO-DOC-OUTPUT:END -->
