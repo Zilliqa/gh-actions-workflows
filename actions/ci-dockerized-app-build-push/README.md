@@ -34,5 +34,6 @@
 |  digest   | string |     Image digest      |
 |  imageid  | string |       Image ID        |
 | imagetags | string |     Generated tag     |
+| metadata  | string | Build result metadata |
 
 <!-- AUTO-DOC-OUTPUT:END -->
