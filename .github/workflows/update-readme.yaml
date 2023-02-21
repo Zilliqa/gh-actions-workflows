@@ -1,7 +1,7 @@
 name: Generate actions documentation
 
 on:
-  push:
+  pull_request:
     branches:
       - main
 
@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        path: [configure-aws-credentials, configure-aws-profile, docker-build-push, docker-cache]
+        path: [ci-dockerized-app-build-push, configure-aws-credentials, configure-aws-profile, docker-build-push, docker-cache, generate-tag]
     steps:
       - uses: actions/checkout@v3
         with:
@@ -39,7 +39,7 @@ jobs:
         if: steps.verify_changed_files.outputs.files_changed == 'true'
         uses: peter-evans/create-pull-request@v4
         with:
-          base: "main"
+          base: ${{ github.head_ref }}
           labels: "merge when passing"
           title: "Updated ${{ matrix.path }}/README.md"
           branch: "chore/update-readme/${{ matrix.path }}"
