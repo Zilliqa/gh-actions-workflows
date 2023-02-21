@@ -2,8 +2,8 @@ name: Create Release
 
 on:
   push:
-    # branches:
-    #   - main
+    branches:
+      - version
 
 jobs:
   release:
@@ -15,7 +15,7 @@ jobs:
       - uses: actions-ecosystem/action-get-merged-pull-request@v1
         id: get-merged-pull-request
         with:
-          github_token: ${{ secrets.PAT_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: actions-ecosystem/action-release-label@v1
         id: release-label
