@@ -49,3 +49,12 @@ jobs:
           commit-message: "Updated ${{ matrix.path }}/README.md"
           body: "Updated README.md"
           token: ${{ secrets.PAT_TOKEN }}
+
+  build:
+    runs-on: [ ubuntu-latest ]
+    steps:
+      - name: Dump GitHub context
+        id: github_context_step
+        run: echo $JSON
+        env:
+          JSON: ${{ toJSON(github) }}
