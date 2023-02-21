@@ -29,6 +29,7 @@ inputs:
   tag-length:
     description: 'The number of chars composing the tag from the short commit sha'
     required: false
+    default: 7
   tag-latest:
     description: 'If true add the tag latest'
     required: false
