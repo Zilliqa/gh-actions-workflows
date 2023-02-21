@@ -1,9 +1,6 @@
 name: Generate actions documentation
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
     branches:
       - main
@@ -42,19 +39,10 @@ jobs:
         if: steps.verify_changed_files.outputs.files_changed == 'true'
         uses: peter-evans/create-pull-request@v4
         with:
-          base: ${{ github.ref_name }}
+          base: ${{ github.head_ref }}
           labels: "merge when passing"
           title: "Updated ${{ matrix.path }}/README.md"
           branch: "chore/update-readme/${{ matrix.path }}"
           commit-message: "Updated ${{ matrix.path }}/README.md"
           body: "Updated README.md"
           token: ${{ secrets.PAT_TOKEN }}
-
-  build:
-    runs-on: [ ubuntu-latest ]
-    steps:
-      - name: Dump GitHub context
-        id: github_context_step
-        run: echo $JSON
-        env:
-          JSON: ${{ toJSON(github) }}
