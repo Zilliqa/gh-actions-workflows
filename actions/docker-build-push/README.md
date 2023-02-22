@@ -11,8 +11,8 @@ ___
 * [Usage](#usage)
   * [Git context](#git-context)
   * [Path context](#path-context)
-* [inputs](#inputs)
-* [outputs](#outputs)
+* [Inputs](#inputs)
+* [Outputs](#outputs)
 
 ## Usage
 
