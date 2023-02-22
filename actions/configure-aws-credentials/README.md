@@ -2,9 +2,13 @@
 
 Configure AWS credential and region environment variables for use in other GitHub Actions.  The environment variables will be detected by both the AWS SDKs and the AWS CLI to determine the credentials and region to use for AWS API calls.
 
-> *** warning ***
-> 
+> **Warning**
 >
+> Subdirectory for Git context is available from [BuildKit v0.9.0](https://github.com/moby/buildkit/releases/tag/v0.9.0).
+> If you're using the `docker` builder (default if `setup-buildx-action` not used),
+> then BuildKit in Docker Engine will be used. As Docker Engine < v22.x.x embeds
+> Buildkit 0.8.2 at the moment, it does not support this feature. It's therefore
+> required to use the `setup-buildx-action` at the moment.
 
 **Table of Contents**
 
