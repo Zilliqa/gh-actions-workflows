@@ -4,28 +4,15 @@
 
 <!-- AUTO-DOC-INPUT:START - Do not remove or modify this section -->
 
-|   INPUT    |  TYPE  | REQUIRED | DEFAULT  |             DESCRIPTION             |
-|------------|--------|----------|----------|-------------------------------------|
-| build-args | string |  false   |          |    Arguments to build the image     |
-| cache-from | string |  false   |          |           Docker registry           |
-|  cache-to  | string |  false   |          | The username to access the registry |
-|  context   | string |  false   |          | The context to build the Dockerfile |
-|    file    | string |   true   |          |     The path to the Dockerfile      |
-|    pull    | string |  false   | `"true"` |      Enable/disable image pull      |
-|    push    | string |  false   | `"true"` |      Enable/disable image push      |
-|    tags    | string |   true   |          |        The tags of the image        |
-|   target   | string |  false   |          | The target to build in the<br>image |
+|       INPUT        |  TYPE  | REQUIRED |           DEFAULT           |                            DESCRIPTION                             |
+|--------------------|--------|----------|-----------------------------|--------------------------------------------------------------------|
+|      actions       | string |  false   |        `"plan-only"`        |      What action to take: 'plan-only' or<br>'plan-and-apply'       |
+|       engine       | string |  false   |          `"z/tg"`           | The Terragrunt engine. Valid inputs are<br>'z/tg' and 'terragrunt' |
+| terraform-version  | string |  false   |          `"1.2.5"`          |                       The Terraform version                        |
+| terragrunt-version | string |  false   |         `"0.38.7"`          |                       The Terragrunt version                       |
+|    working-dir     | string |  false   | `"${{ github.workspace }}"` |                  The Terragrunt working directory                  |
+|     z-version      | string |  false   |          `"1.0.0"`          |                          The z/tg version                          |
 
 <!-- AUTO-DOC-INPUT:END -->
 
 ## Outputs
-
-<!-- AUTO-DOC-OUTPUT:START - Do not remove or modify this section -->
-
-|  OUTPUT  |  TYPE  |      DESCRIPTION      |
-|----------|--------|-----------------------|
-|  digest  | string |     Image digest      |
-| imageid  | string |       Image ID        |
-| metadata | string | Build result metadata |
-
-<!-- AUTO-DOC-OUTPUT:END -->
