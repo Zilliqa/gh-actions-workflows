@@ -1,0 +1,110 @@
+name: 'Terragrunt deploy'
+description: 'Deploy infrastructure using terragrunt'
+author: devops@zilliqa.com
+
+inputs:
+  terraform-version:
+    description: 'The Terraform version'
+    required: false
+    default: "1.2.5"
+  terragrunt-version:
+    description: 'The Terragrunt version'
+    required: false
+    default: "0.38.7"
+  z-version:
+    description: 'The z/tg version'
+    required: false
+    default: "1.0.0"
+  actions:
+    description: "What action to take: 'plan-only' or 'plan-and-apply'"
+    required: false
+    default: 'plan-only'
+  working-dir:
+    description: 'The Terragrunt working directory'
+    required: false
+    default: ${{ github.workspace }}
+  engine:
+    description: "The Terragrunt engine. Valid inputs are 'z/tg' and 'terragrunt'"
+    required: false
+    default: "z/tg"
+
+runs:
+  using: "composite"
+  steps:
+  - name: Install Terraform
+    uses: hashicorp/setup-terraform@v2
+    with:
+      terraform_version: ${{ inputs.terraform-version }}
+      terraform_wrapper: false
+  - name: Install Terragrunt
+    uses: eLco/setup-terragrunt@v1
+    with:
+      terragrunt_version: ${{ inputs.terragrunt-version }}
+  - name: Build z/tg
+    if: ${{ inputs.engine == 'z/tg' }}
+    shell: bash
+    env:
+      CARGO_TERM_COLOR: always
+    run: |
+      cd infra/utils/z && cargo build
+      sudo cp ./target/debug/z /usr/local/bin
+      sudo cp ./target/debug/tg /usr/local/bin
+  
+  - name: Infrastructure plan
+    if: ${{ contains(inputs.actions, 'plan-only') && inputs.engine == 'z/tg' }}
+    shell: bash
+    env:
+      AWS_ACCESS_KEY_ID: ""
+      AWS_SECRET_ACCESS_KEY: ""
+      AWS_SESSION_TOKEN: ""
+    run: |
+      cd ${{ inputs.working-dir }}
+      HERE=`pwd`
+      tg ${HERE} run-all init
+      cd _projects && for i in * ; do cd $i && echo y | terragrunt init || cd ..; done
+      cd ${HERE}
+      tg ${HERE} run-all plan
+  - name: Infrastructure deploy
+    if: ${{ contains(inputs.actions, 'plan-and-apply') && inputs.engine == 'z/tg' }}
+    id: terragrunt-z-first-attempt
+    continue-on-error: true
+    shell: bash
+    env:
+      AWS_ACCESS_KEY_ID: ""
+      AWS_SECRET_ACCESS_KEY: ""
+      AWS_SESSION_TOKEN: ""
+    run: |
+      cd ${{ inputs.working-dir }}
+      HERE=`pwd`
+      tg ${HERE} run-all init
+      cd _projects && for i in * ; do cd $i && echo y | terragrunt init || cd ..; done
+      cd ${HERE}
+      echo "Y" | tg ${HERE} run-all apply
+  - name: Infrastructure deploy - retry
+    if: ${{ contains(inputs.actions, 'plan-and-apply') && steps.terragrunt-z-first-attempt.outcome == 'failure' && inputs.engine == 'z/tg' }}
+    shell: bash
+    env:
+      AWS_ACCESS_KEY_ID: ""
+      AWS_SECRET_ACCESS_KEY: ""
+      AWS_SESSION_TOKEN: ""
+    run: |
+      cd ${{ inputs.working-dir }}
+      echo "Y" | tg `pwd` run-all apply
+
+  - name: Infrastructure plan
+    if: ${{ contains(inputs.actions, 'plan-only') && inputs.engine == 'terragrunt' }}
+    shell: bash
+    env:
+      AWS_ACCESS_KEY_ID: ""
+      AWS_SECRET_ACCESS_KEY: ""
+      AWS_SESSION_TOKEN: ""
+    run: |
+      terragrunt run-all plan --terragrunt-working-dir ${{ inputs.working-dir }}
+  - name: Infrastructure deploy
+    if: ${{ contains(inputs.actions, 'plan-and-apply') && inputs.engine == 'terragrunt' }}
+    shell: bash
+    env:
+      AWS_ACCESS_KEY_ID: ""
+      AWS_SECRET_ACCESS_KEY: ""
+      AWS_SESSION_TOKEN: ""
+    run: echo "Y" | terragrunt run-all apply --terragrunt-working-dir ${{ inputs.working-dir }}
