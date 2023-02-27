@@ -20,7 +20,7 @@
 |  role-to-assume   | string |  false   |          |         The AWS role to assume to<br>login to the registry         |
 |        tag        | string |   true   |          |                        The tag of the image                        |
 |    tag-latest     | string |  false   |          |                     If true add the tag latest                     |
-|    tag-length     | string |  false   |          | The number of chars composing the<br>tag from the short commit sha |
+|    tag-length     | string |  false   |  `"7"`   | The number of chars composing the<br>tag from the short commit sha |
 |      target       | string |  false   |          |                The target to build in the<br>image                 |
 
 <!-- AUTO-DOC-INPUT:END -->
