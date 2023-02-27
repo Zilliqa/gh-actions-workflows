@@ -21,8 +21,7 @@ inputs:
     default: 'plan-only'
   working-dir:
     description: 'The Terragrunt working directory'
-    required: false
-    default: ${{ github.workspace }}
+    required: true
   engine:
     description: "The Terragrunt engine. Valid inputs are 'z/tg' and 'terragrunt'"
     required: false
