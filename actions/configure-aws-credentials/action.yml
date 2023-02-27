@@ -12,7 +12,7 @@ inputs:
   role-duration-seconds:
     description: 'Assume role session duration'
     required: false
-    default: 1200
+    default: 3600
   oidc-role:
     description: 'The identity provide role'
     required: true
