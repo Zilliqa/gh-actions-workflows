@@ -26,6 +26,10 @@ inputs:
     description: "The Terragrunt engine. Valid inputs are 'z/tg' and 'terragrunt'"
     required: false
     default: "z/tg"
+  token:
+    description: "The GitHub token"
+    required: false
+    default: ${{ github.token }}
 
 runs:
   using: "composite"
@@ -42,12 +46,34 @@ runs:
   - name: Build z/tg
     if: ${{ inputs.engine == 'z/tg' }}
     shell: bash
-    env:
-      CARGO_TERM_COLOR: always
     run: |
-      cd infra/utils/z && cargo build
-      sudo cp ./target/debug/z /usr/local/bin
-      sudo cp ./target/debug/tg /usr/local/bin
+      FILE="z-Linux-x86_64.tar.gz"
+      if [ "${{ runner.os }}" = "macOS" ]; then
+        FILE="z-Darwin-x86_64.tar.gz"
+      fi;
+      VERSION="z-v${{ inputs.z-version }}"
+
+      alias errcho='>&2 echo'
+
+      if [ "$VERSION" = "latest" ]; then
+        # Github should return the latest release first.
+        parser=".[0].assets | map(select(.name == \"$FILE\"))[0].id"
+      else
+        parser=". | map(select(.tag_name == \"$VERSION\"))[0].assets | map(select(.name == \"$FILE\"))[0].id"
+      fi;
+
+      asset_id=`curl -H "Authorization: token ${{ inputs.token }}" -H "Accept: application/vnd.github.v3.raw" -s https://api.github.com/repos/zilliqa/devops/releases | jq "$parser"`
+
+      echo $asset_id
+      if [ "$asset_id" = "null" ]; then
+        errcho "ERROR: version not found $VERSION"
+        exit 1
+      fi;
+      
+      curl -sL -u "zilliqa:${{ inputs.token }}" --header "Accept: application/octet-stream" https://api.github.com/repos/zilliqa/devops/releases/assets/$asset_id > $FILE
+      tar -xvf $FILE
+      sudo mv ./z /usr/local/bin
+      sudo mv ./tg /usr/local/bin
   
   - name: Infrastructure plan
     if: ${{ contains(inputs.actions, 'plan-only') && inputs.engine == 'z/tg' }}
