@@ -1,0 +1,171 @@
+name: |-
+  CI - Rust application
+  
+  ### Usage 
+  ```yaml
+    name: Deploy
+    on:
+      push:
+        branches: [ main ]
+    jobs:
+      ci:
+        uses: Zilliqa/gh-actions-workflows/.github/workflows/ci-rust-app.yml@main
+        with:
+          commitOrTag: $\{\{ env.commitOrTag \}\}
+          working-directory: $\{\{ env.working-directory \}\}
+          runner: $\{\{ env.runner s\}\}
+  ```
+
+on:
+  workflow_call:
+    inputs:
+      commitOrTag:
+        description: 'The commit hash or branch or tag to checkout'
+        required: false
+        type: string
+      working-directory:
+        description: 'The path to the application'
+        required: false
+        default: '.'
+        type: string
+      dependencies:
+        description: 'Space separate list of dependencies to install before executing the workflow'
+        required: false
+        type: string
+      snap:
+        description: 'Use snap as package manager instead of apt'
+        required: false
+        type: boolean
+      runner:
+        description: 'The runner label for the build'
+        required: false
+        default: 'ubuntu-22.04'
+        type: string
+
+env:
+  CARGO_TERM_COLOR: always
+  WORKING_DIRECTORY: ${{ inputs.working-directory }}
+  DEPENDENCIES: ${{ inputs.dependencies }}
+
+jobs:
+  build:
+    runs-on: ${{ inputs.runner }}
+    steps:
+    - name: Install Ubuntu pre-requirements
+      if: inputs.dependencies != '' && !inputs.snap
+      run: sudo apt install -y ${{ env.DEPENDENCIES }}
+      shell: bash
+    - name: Install Ubuntu pre-requirements using snap
+      if: inputs.dependencies != '' && inputs.snap
+      run: |
+        input="${{ env.DEPENDENCIES }}"
+        IFS=' '
+        for element in $input; do
+          sudo snap install $element --classic
+        done
+      shell: bash
+    - name: 'Checkout scm ${{ inputs.commitOrTag }}'
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ inputs.commitOrTag }}
+    - name: Configure the cache
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cargo/bin/
+          ~/.cargo/registry/index/
+          ~/.cargo/registry/cache/
+          ~/.cargo/git/db/
+          ${{ env.WORKING_DIRECTORY }}/target/
+        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+    - name: Install Rust toolchain
+      run: cd ${{ env.WORKING_DIRECTORY }} && rustup show
+    - name: Build
+      run: cd ${{ env.WORKING_DIRECTORY }} && cargo build --all-targets
+
+  lint:
+    runs-on: ${{ inputs.runner }}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ inputs.commitOrTag }}
+    - name: Install Rust toolchain
+      run: cd ${{ env.WORKING_DIRECTORY }} && rustup show
+    - name: Rustfmt Check
+      uses: actions-rust-lang/rustfmt@v1
+      with:
+        manifest-path: ${{ env.WORKING_DIRECTORY }}/Cargo.toml
+  
+  clippy:
+    runs-on: ${{ inputs.runner }}
+    steps:
+    - name: Install Ubuntu pre-requirements
+      if: inputs.dependencies != '' && !inputs.snap
+      run: sudo apt install -y ${{ env.DEPENDENCIES }}
+      shell: bash
+    - name: Install Ubuntu pre-requirements using snap
+      if: inputs.dependencies != '' && inputs.snap
+      run: |
+        input="${{ env.DEPENDENCIES }}"
+        IFS=' '
+        for element in $input; do
+          sudo snap install $element --classic
+        done
+      shell: bash
+    - name: 'Checkout scm ${{ inputs.commitOrTag }}'
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ inputs.commitOrTag }}
+    - name: Configure the cache
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cargo/bin/
+          ~/.cargo/registry/index/
+          ~/.cargo/registry/cache/
+          ~/.cargo/git/db/
+          ${{ env.WORKING_DIRECTORY }}/target/
+        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+    - name: Install Rust toolchain
+      run: cd ${{ env.WORKING_DIRECTORY }} && rustup show
+    - name: Cargo clippy
+      uses: actions-rs-plus/clippy-check@v2
+      with:
+        args: --manifest-path=${{ env.WORKING_DIRECTORY }}/Cargo.toml --all-targets --no-deps --all-features -- -D warnings
+
+  test:
+    needs: [build, lint, clippy]
+    runs-on: ${{ inputs.runner }}
+    steps:
+    - name: Install Ubuntu pre-requirements
+      if: inputs.dependencies != '' && !inputs.snap
+      run: sudo apt install -y ${{ env.DEPENDENCIES }}
+      shell: bash
+    - name: Install Ubuntu pre-requirements using snap
+      if: inputs.dependencies != '' && inputs.snap
+      run: |
+        input="${{ env.DEPENDENCIES }}"
+        IFS=' '
+        for element in $input; do
+          sudo snap install $element --classic
+        done
+      shell: bash
+    - name: 'Checkout scm ${{ inputs.commitOrTag }}'
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ inputs.commitOrTag }}
+    - name: Configure the cache
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cargo/bin/
+          ~/.cargo/registry/index/
+          ~/.cargo/registry/cache/
+          ~/.cargo/git/db/
+          ${{ env.WORKING_DIRECTORY }}/target/
+        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+    - name: Install Rust toolchain
+      run: cd ${{ env.WORKING_DIRECTORY }} && rustup show
+    - name: Test
+      run: cd ${{ env.WORKING_DIRECTORY }} && cargo test --verbose
