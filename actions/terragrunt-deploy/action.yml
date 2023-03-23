@@ -114,7 +114,7 @@ runs:
       AWS_SESSION_TOKEN: ""
     run: |
       cd ${{ inputs.working-dir }}
-      echo "Y" | tg `pwd` run-all apply
+      echo "yes" | tg `pwd` run-all apply
 
   - name: Infrastructure plan
     if: ${{ contains(inputs.actions, 'plan-only') && inputs.engine == 'terragrunt' }}
