@@ -4,9 +4,9 @@
 
 <!-- AUTO-DOC-INPUT:START - Do not remove or modify this section -->
 
-| INPUT |  TYPE  | REQUIRED | DEFAULT |             DESCRIPTION             |
-|-------|--------|----------|---------|-------------------------------------|
-|  key  | string |   true   |         | The key to store/retrieve the cache |
+| INPUT |  TYPE  | REQUIRED | DEFAULT |               DESCRIPTION                |
+|-------|--------|----------|---------|------------------------------------------|
+|  key  | string |   true   |         | The key to store/retrieve the <br>cache  |
 
 <!-- AUTO-DOC-INPUT:END -->
 

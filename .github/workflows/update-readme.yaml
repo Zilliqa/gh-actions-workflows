@@ -17,9 +17,9 @@ jobs:
           fetch-depth: 0
 
       - name: Run auto-doc
-        uses: tj-actions/auto-doc@v1
+        uses: tj-actions/auto-doc@v2
         with:
-          action: "actions/${{ matrix.path }}/action.yml"
+          filename: "actions/${{ matrix.path }}/action.yml"
           output: "actions/${{ matrix.path }}/README.md"
 
       - name: Run remark

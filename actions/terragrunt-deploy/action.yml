@@ -30,6 +30,10 @@ inputs:
     description: "The GitHub token"
     required: false
     default: ${{ github.token }}
+  devops-folder:
+    description: "The root folder of the devops repository"
+    required: false
+    default: "./"
 
 runs:
   using: "composite"
@@ -85,10 +89,10 @@ runs:
     run: |
       cd ${{ inputs.working-dir }}
       HERE=`pwd`
-      tg ${HERE} run-all init
+      tg ${HERE} ${{ inputs.devops-folder }} run-all init
       cd _projects && for i in * ; do cd $i && echo y | terragrunt init || cd ..; done
       cd ${HERE}
-      tg ${HERE} run-all plan
+      tg ${HERE} ${{ inputs.devops-folder }} run-all plan
   - name: Infrastructure deploy
     if: ${{ contains(inputs.actions, 'plan-and-apply') && inputs.engine == 'z/tg' }}
     id: terragrunt-z-first-attempt
@@ -101,10 +105,10 @@ runs:
     run: |
       cd ${{ inputs.working-dir }}
       HERE=`pwd`
-      tg ${HERE} run-all init
+      tg ${HERE} ${{ inputs.devops-folder }} run-all init
       cd _projects && for i in * ; do cd $i && echo y | terragrunt init || cd ..; done
       cd ${HERE}
-      echo "Y" | tg ${HERE} run-all apply
+      echo "Y" | tg ${HERE} ${{ inputs.devops-folder }} run-all apply
   - name: Infrastructure deploy - retry
     if: ${{ contains(inputs.actions, 'plan-and-apply') && steps.terragrunt-z-first-attempt.outcome == 'failure' && inputs.engine == 'z/tg' }}
     shell: bash
@@ -114,7 +118,7 @@ runs:
       AWS_SESSION_TOKEN: ""
     run: |
       cd ${{ inputs.working-dir }}
-      echo "yes" | tg `pwd` run-all apply
+      echo "yes" | tg `pwd` ${{ inputs.devops-folder }} run-all apply
 
   - name: Infrastructure plan
     if: ${{ contains(inputs.actions, 'plan-only') && inputs.engine == 'terragrunt' }}
