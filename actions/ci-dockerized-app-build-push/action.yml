@@ -51,6 +51,12 @@ inputs:
   oidc-role:
     description: 'The AWS role trusting the OIDC'
     required: false
+  workload-identity-provider:
+    description: 'The GCP workload identity provider to login to the registry'
+    required: false
+  service-account:
+    description: 'The GCP service account trusting the OIDC'
+    required: false
   cache-key:
     description: 'The key to store/retrieve the cache'
     required: false
@@ -103,6 +109,22 @@ runs:
     with:
       username: ${{ inputs.registry-username }}
       password: ${{ inputs.registry-password }}
+  - name: "Configure GCP Credentials"
+    id: google-auth
+    uses: "google-github-actions/auth@v1"
+    if: ${{ contains(inputs.registry, '.pkg.dev') }} || ${{ contains(inputs.registry, 'gcr.io') }}
+    with:
+      token_format: "access_token"
+      workload_identity_provider: ${{ inputs.workload-identity-provider }}
+      service_account: ${{ inputs.service-account }}
+      create_credentials_file: true
+  - name: Login to GCP registry
+    uses: docker/login-action@v2
+    if: ${{ contains(inputs.registry, '.pkg.dev') }} || ${{ contains(inputs.registry, 'gcr.io') }}
+    with:
+      registry: ${{ inputs.registry }}
+      username: "oauth2accesstoken"
+      password: "${{ steps.google-auth.outputs.access_token }}"
   - name: Build and push Docker images
     uses: Zilliqa/gh-actions-workflows/actions/docker-build-push@main
     id: build-push

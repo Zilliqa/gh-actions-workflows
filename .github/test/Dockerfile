@@ -1,5 +1,7 @@
-# Ubuntu 22.10 (kinetic)
-FROM ubuntu:22.10
+FROM ubuntu:22.04
+
+# Set environment variables to avoid interactive prompts during installation
+ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get -y update && \
     apt-get upgrade -y && \
