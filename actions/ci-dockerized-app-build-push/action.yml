@@ -61,6 +61,9 @@ inputs:
     description: 'The key to store/retrieve the cache'
     required: false
     default: ''
+  secrets:
+    description: "List of secrets to expose to the build (e.g., key=string, GIT_AUTH_TOKEN=mytoken)"
+    required: false
 
 outputs:
   imageid:
@@ -138,3 +141,4 @@ runs:
       tags: ${{ steps.image-tags.outputs.tags }}
       cache-from: ${{ steps.docker-cache.outputs.cachefrom }}
       cache-to: ${{ steps.docker-cache.outputs.cacheto }}
+      secrets: ${{ inputs.secrets }}
