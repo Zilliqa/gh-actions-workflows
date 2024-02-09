@@ -129,7 +129,7 @@ runs:
       username: "oauth2accesstoken"
       password: "${{ steps.google-auth.outputs.access_token }}"
   - name: Build and push Docker images
-    uses: Zilliqa/gh-actions-workflows/actions/docker-build-push@main
+    uses: Zilliqa/gh-actions-workflows/actions/docker-build-push@DEVOPS-1259
     id: build-push
     with:
       file: ${{ inputs.file }}
