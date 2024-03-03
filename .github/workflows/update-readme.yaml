@@ -44,5 +44,6 @@ jobs:
           title: "Updated ${{ matrix.path }}/README.md"
           branch: "chore/update-readme/${{ matrix.path }}"
           commit-message: "Updated ${{ matrix.path }}/README.md"
+          author: ${{ github.actor }}
           body: "Updated README.md"
           token: ${{ secrets.PAT_TOKEN }}
