@@ -4,7 +4,7 @@ author: devops@zilliqa.com
 
 inputs:
   file:
-    description: 'The path to the Dockerfile. If not set, it is uses the context path.'
+    description: 'The path to the Dockerfile. If not set, it uses the context path.'
     required: false
   context:
     description: 'The context to build the Dockerfile'
