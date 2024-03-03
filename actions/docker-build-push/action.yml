@@ -63,7 +63,7 @@ runs:
       endpoint: buildx-context
   - name: Build and push Docker images
     id: build-push
-    uses: docker/@v5
+    uses: docker/build-push-action@v5
     with:
       file: ${{ inputs.file }}
       context: ${{ inputs.context }}
