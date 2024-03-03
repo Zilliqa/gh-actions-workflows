@@ -38,6 +38,8 @@ jobs:
       - name: Create Pull Request
         if: steps.verify_changed_files.outputs.files_changed == 'true'
         uses: peter-evans/create-pull-request@v6
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACTION_GH_TOKEN }}
         with:
           base: ${{ github.head_ref }}
           labels: "merge when passing"
