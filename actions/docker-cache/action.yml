@@ -26,7 +26,7 @@ outputs:
 runs:
   using: "composite"
   steps:
-  - name: Set cache for gha
+  - name: Set cache
     id: cache
     run: |
       if [ "${{ inputs.key }}" = "" ]; then
