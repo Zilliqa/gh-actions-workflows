@@ -140,6 +140,8 @@ runs:
       push: ${{ inputs.push }}
       target: ${{ inputs.target }}
       tags: ${{ steps.image-tags.outputs.tags }}
-      cache-from: ${{ steps.docker-cache.outputs.cachefrom }}
+      cache-from: | 
+        ${{ steps.docker-cache.outputs.cachefrom }}
+        ${{ steps.docker-cache.outputs.cachefromfallback }}
       cache-to: ${{ steps.docker-cache.outputs.cacheto }}
       secrets: ${{ inputs.secrets }}
