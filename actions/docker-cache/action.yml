@@ -15,6 +15,9 @@ outputs:
   cachefrom:
     description: 'Docker layers Cache from value'
     value: ${{ steps.cache.outputs.cachefrom }}
+  cachefromfallback:
+    description: 'Docker layers Cache from fallback tag value'
+    value: ${{ steps.cache.outputs.cachefrom }}
   cacheto:
     description: 'Docker layers Cache to value'
     value: ${{ steps.cache.outputs.cacheto }}
