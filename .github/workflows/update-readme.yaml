@@ -45,4 +45,4 @@ jobs:
           branch: "chore/update-readme/${{ matrix.path }}"
           commit-message: "Updated ${{ matrix.path }}/README.md"
           body: "Updated README.md"
-          token: ${{ secrets.ACTION_GH_TOKEN }}
+          token: ${{ secrets.PAT_TOKEN }}
