@@ -83,20 +83,20 @@ runs:
   using: "composite"
   steps:
   - name: Docker cache
-    uses: Zilliqa/gh-actions-workflows/actions/docker-cache@v2
+    uses: Zilliqa/gh-actions-workflows/actions/docker-cache@devops-1215
     id: docker-cache
     with:
       backend: registry
       key: ${{ inputs.cache-key }}
   - name: Set image tags
-    uses: Zilliqa/gh-actions-workflows/actions/generate-tag@v2
+    uses: Zilliqa/gh-actions-workflows/actions/generate-tag@devops-1215
     id: image-tags
     with:
       tag: ${{ inputs.tag }}
       length: ${{ inputs.tag-length }}
       latest: ${{ inputs.tag-latest }}
   - name: Configure AWS Credentials
-    uses: Zilliqa/gh-actions-workflows/actions/configure-aws-credentials@main
+    uses: Zilliqa/gh-actions-workflows/actions/configure-aws-credentials@devops-1215
     if: ${{ contains(inputs.registry, '.amazonaws.com') }}
     with:
       aws-region: ${{ inputs.aws-region }}
@@ -130,7 +130,7 @@ runs:
       username: "oauth2accesstoken"
       password: "${{ steps.google-auth.outputs.access_token }}"
   - name: Build and push Docker images
-    uses: Zilliqa/gh-actions-workflows/actions/docker-build-push@main
+    uses: Zilliqa/gh-actions-workflows/actions/docker-build-push@devops-1215
     id: build-push
     with:
       file: ${{ inputs.file }}
