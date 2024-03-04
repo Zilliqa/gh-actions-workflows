@@ -4,11 +4,11 @@ author: devops@zilliqa.com
 
 inputs:
   file:
-    description: 'The path to the Dockerfile'
-    required: true
+    description: 'The path to the Dockerfile. If not set, it uses the context path.'
+    required: false
   context:
     description: 'The context to build the Dockerfile'
-    required: false
+    required: true
   build-args:
     description: 'Arguments to build the image'
     required: false

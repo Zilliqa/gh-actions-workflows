@@ -3,6 +3,10 @@ description: 'Docker cache setup action'
 author: devops@zilliqa.com
 
 inputs:
+  backend:
+    description: 'The cache storage backend for the cache'
+    required: false
+    default: gha
   key:
     description: 'The key to store/retrieve the cache'
     required: true
@@ -18,14 +22,17 @@ outputs:
 runs:
   using: "composite"
   steps:
-  - name: Set cache
+  - name: Set cache for gha
     id: cache
     run: |
       if [ "${{ inputs.key }}" = "" ]; then
         echo "cachefrom=" >> $GITHUB_OUTPUT
         echo "cacheto=" >> $GITHUB_OUTPUT
-      else
+      else if [ "${{ inputs.backend }}" = "gha" ]; then
         echo "cachefrom=type=gha,scope=${{ github.event.repository.name }}-${{ inputs.key }}" >> $GITHUB_OUTPUT
         echo "cacheto=type=gha,scope=${{ github.event.repository.name }}-${{ inputs.key }},mode=max" >> $GITHUB_OUTPUT
+      else if [ "${{ inputs.backend }}" = "registry" ]; then
+        echo "cachefrom=type=registry,ref=${{ inputs.key }}" >> $GITHUB_OUTPUT
+        echo "cacheto=type=registry,ref=${{ inputs.key }},mode=max" >> $GITHUB_OUTPUT
       fi
     shell: bash
