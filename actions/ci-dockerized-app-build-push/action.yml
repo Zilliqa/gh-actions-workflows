@@ -83,13 +83,13 @@ runs:
   using: "composite"
   steps:
   - name: Docker cache
-    uses: Zilliqa/gh-actions-workflows/actions/docker-cache@v2
+    uses: Zilliqa/gh-actions-workflows/actions/docker-cache@devops-1215
     id: docker-cache
     with:
       backend: registry
       key: ${{ inputs.cache-key }}
   - name: Set image tags
-    uses: Zilliqa/gh-actions-workflows/actions/generate-tag@main
+    uses: Zilliqa/gh-actions-workflows/actions/generate-tag@v1
     id: image-tags
     with:
       tag: ${{ inputs.tag }}
