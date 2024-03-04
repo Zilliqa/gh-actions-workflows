@@ -4,8 +4,8 @@ author: devops@zilliqa.com
 
 inputs:
   file:
-    description: 'The path to the Dockerfile'
-    required: true
+    description: 'The path to the Dockerfile. If not set, it uses the context path.'
+    required: false
   context:
     description: 'The context to build the Dockerfile'
     required: false
@@ -58,12 +58,12 @@ runs:
     run: |
       docker context create buildx-context || true 
   - name: Set up Docker Buildx
-    uses: docker/setup-buildx-action@v2
+    uses: docker/setup-buildx-action@v3
     with:
       endpoint: buildx-context
   - name: Build and push Docker images
     id: build-push
-    uses: docker/build-push-action@v3
+    uses: docker/build-push-action@v5
     with:
       file: ${{ inputs.file }}
       context: ${{ inputs.context }}

@@ -3,14 +3,21 @@ description: 'Docker cache setup action'
 author: devops@zilliqa.com
 
 inputs:
+  backend:
+    description: 'The cache storage backend for the cache'
+    required: false
+    default: gha
   key:
-    description: 'The key to store/retrieve the cache'
+    description: 'The key to store/retrieve the cache or the Docker cache repository'
     required: true
 
 outputs:
   cachefrom:
     description: 'Docker layers Cache from value'
     value: ${{ steps.cache.outputs.cachefrom }}
+  cachefromfallback:
+    description: 'Docker layers Cache from fallback tag value'
+    value: ${{ steps.cache.outputs.cachefromfallback }}
   cacheto:
     description: 'Docker layers Cache to value'
     value: ${{ steps.cache.outputs.cacheto }}
@@ -24,8 +31,12 @@ runs:
       if [ "${{ inputs.key }}" = "" ]; then
         echo "cachefrom=" >> $GITHUB_OUTPUT
         echo "cacheto=" >> $GITHUB_OUTPUT
-      else
+      elif [ "${{ inputs.backend }}" = "gha" ]; then
         echo "cachefrom=type=gha,scope=${{ github.event.repository.name }}-${{ inputs.key }}" >> $GITHUB_OUTPUT
         echo "cacheto=type=gha,scope=${{ github.event.repository.name }}-${{ inputs.key }},mode=max" >> $GITHUB_OUTPUT
+      elif [ "${{ inputs.backend }}" = "registry" ]; then
+        echo "cachefrom=type=registry,ref=${{ inputs.key }}:${{ github.head_ref }}" >> $GITHUB_OUTPUT
+        echo "cachefromfallback=type=registry,ref=${{ inputs.key }}:${{ github.event.repository.default_branch }}" >> $GITHUB_OUTPUT
+        echo "cacheto=type=registry,ref=${{ inputs.key }}:${{ github.head_ref }},mode=max" >> $GITHUB_OUTPUT
       fi
     shell: bash
