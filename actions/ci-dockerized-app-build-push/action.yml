@@ -57,6 +57,10 @@ inputs:
   service-account:
     description: 'The GCP service account trusting the OIDC'
     required: false
+  cache-backend:
+    description: 'The cache storage backend for the cache'
+    required: false
+    default: registry
   cache-key:
     description: 'The key to store/retrieve the cache'
     required: false
@@ -86,7 +90,7 @@ runs:
     uses: Zilliqa/gh-actions-workflows/actions/docker-cache@v2
     id: docker-cache
     with:
-      backend: registry
+      backend: ${{ inputs.cache-backend }}
       key: ${{ inputs.cache-key }}
   - name: Set image tags
     uses: Zilliqa/gh-actions-workflows/actions/generate-tag@v2
