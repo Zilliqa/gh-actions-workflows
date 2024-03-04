@@ -8,8 +8,12 @@ inputs:
     required: false
     default: gha
   key:
-    description: 'The key to store/retrieve the cache'
+    description: 'The key to store/retrieve the cache or the Docker cache repository'
     required: true
+  default_branch:
+    description: 'The default cache branch for fallback'
+    required: false
+    default: main
 
 outputs:
   cachefrom:
@@ -32,7 +36,9 @@ runs:
         echo "cachefrom=type=gha,scope=${{ github.event.repository.name }}-${{ inputs.key }}" >> $GITHUB_OUTPUT
         echo "cacheto=type=gha,scope=${{ github.event.repository.name }}-${{ inputs.key }},mode=max" >> $GITHUB_OUTPUT
       else if [ "${{ inputs.backend }}" = "registry" ]; then
-        echo "cachefrom=type=registry,ref=${{ inputs.key }}" >> $GITHUB_OUTPUT
+        echo "cachefrom= |
+          type=registry,ref=${{ inputs.key }}:${{ github.ref_name }} 
+          type=registry,ref=${{ inputs.key }}:${{ inputs.default_branch }}" >> $GITHUB_OUTPUT
         echo "cacheto=type=registry,ref=${{ inputs.key }},mode=max" >> $GITHUB_OUTPUT
       fi
     shell: bash

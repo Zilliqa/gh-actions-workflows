@@ -8,7 +8,7 @@ inputs:
     required: false
   context:
     description: 'The context to build the Dockerfile'
-    required: true
+    required: false
   build-args:
     description: 'Arguments to build the image'
     required: false
