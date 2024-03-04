@@ -33,6 +33,6 @@ runs:
         echo "cacheto=type=gha,scope=${{ github.event.repository.name }}-${{ inputs.key }},mode=max" >> $GITHUB_OUTPUT
       elif [ "${{ inputs.backend }}" = "registry" ]; then
         echo "cachefrom=type=registry,ref=${{ inputs.key }}:${{ github.head_ref }} --cache-from type=registry,ref=${{ inputs.key }}:${{ github.event.repository.default_branch }}" >> $GITHUB_OUTPUT
-        echo "cacheto=type=registry,ref=${{ inputs.key }}:${{ github.head_ref }},mode=max" >> $GITHUB_OUTPUT
+        echo "cacheto=type=registry,ref=${{ inputs.key }}:main,mode=max" >> $GITHUB_OUTPUT
       fi
     shell: bash
