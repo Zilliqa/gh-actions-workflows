@@ -9,8 +9,8 @@
 | build-args | string |  false   |          |                              Arguments to build the image                              |
 | cache-from | string |  false   |          |                                    Docker registry                                     |
 |  cache-to  | string |  false   |          |                        The username to access the <br>registry                         |
-|  context   | string |  false   |          |                        The context to build the <br>Dockerfile                         |
-|    file    | string |   true   |          |                               The path to the Dockerfile                               |
+|  context   | string |   true   |          |                        The context to build the <br>Dockerfile                         |
+|    file    | string |  false   |          |       The path to the Dockerfile. <br>If not set, it uses <br>the context path.        |
 |    pull    | string |  false   | `"true"` |                               Enable/disable image pull                                |
 |    push    | string |  false   | `"true"` |                               Enable/disable image push                                |
 |  secrets   | string |  false   |          | List of secrets to expose <br>to the build (e.g., key=string, GIT\_AUTH\_TOKEN=mytoken)  |
