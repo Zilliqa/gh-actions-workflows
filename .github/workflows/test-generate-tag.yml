@@ -22,7 +22,7 @@ jobs:
       shell: bash
 
     - name: Generated commit hash tag 7 chars
-      uses: Zilliqa/gh-actions-workflows/actions/generate-tag@main
+      uses: Zilliqa/gh-actions-workflows/actions/generate-tag@v1
       id: generate-tag-7
       with:
         tag: test
@@ -39,7 +39,7 @@ jobs:
         exit 1
 
     - name: Generated commit hash tag 9 chars and latest
-      uses: Zilliqa/gh-actions-workflows/actions/generate-tag@main
+      uses: Zilliqa/gh-actions-workflows/actions/generate-tag@v1
       id: generate-tag-9-latest
       with:
         tag: test
@@ -56,7 +56,7 @@ jobs:
         exit 1
 
     - name: Not generated commit hash tag
-      uses: Zilliqa/gh-actions-workflows/actions/generate-tag@main
+      uses: Zilliqa/gh-actions-workflows/actions/generate-tag@v1
       id: no-generate-tag-7
       with:
         tag: test:v1
@@ -73,7 +73,7 @@ jobs:
         exit 1
 
     - name: Not generated commit hash tag and latest
-      uses: Zilliqa/gh-actions-workflows/actions/generate-tag@main
+      uses: Zilliqa/gh-actions-workflows/actions/generate-tag@v1
       id: no-generate-tag-9-latest
       with:
         tag: test:v1

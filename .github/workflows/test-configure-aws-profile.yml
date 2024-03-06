@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
     - name: Configure AWS profile
-      uses: Zilliqa/gh-actions-workflows/actions/configure-aws-profile@main
+      uses: Zilliqa/gh-actions-workflows/actions/configure-aws-profile@v1
       with:
         name: test
         aws-region: us-west-2
@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
     - name: Configure AWS profile
-      uses: Zilliqa/gh-actions-workflows/actions/configure-aws-profile@main
+      uses: Zilliqa/gh-actions-workflows/actions/configure-aws-profile@v1
       with:
         name: ''
         aws-region: ''

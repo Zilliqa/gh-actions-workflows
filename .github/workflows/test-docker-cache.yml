@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
     - name: Given key
-      uses: Zilliqa/gh-actions-workflows/actions/docker-cache@main
+      uses: Zilliqa/gh-actions-workflows/actions/docker-cache@v1
       id: given-key
       with:
         key: test
@@ -33,7 +33,7 @@ jobs:
         exit 1
 
     - name: No key
-      uses: Zilliqa/gh-actions-workflows/actions/docker-cache@main
+      uses: Zilliqa/gh-actions-workflows/actions/docker-cache@v1
       id: no-key
       with:
         key: ''

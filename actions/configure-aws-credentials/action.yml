@@ -38,7 +38,7 @@ runs:
       role-to-assume: ${{ inputs.role-to-assume }}
       role-duration-seconds: ${{ inputs.role-duration-seconds }}
   - name: Configure AWS Credentials
-    uses: Zilliqa/gh-actions-workflows/actions/configure-aws-profile@main
+    uses: Zilliqa/gh-actions-workflows/actions/configure-aws-profile@v1
     if: ${{ inputs.profile-name != '' }}
     with:
       name: ${{ inputs.profile-name }}

@@ -19,7 +19,7 @@ jobs:
       with:
         fetch-depth: 0
     - name: Docker build and push
-      uses: Zilliqa/gh-actions-workflows/actions/ci-dockerized-app-build-push@main
+      uses: Zilliqa/gh-actions-workflows/actions/ci-dockerized-app-build-push@v1
       with:
         file: .github/test/Dockerfile
         push: true
@@ -44,7 +44,7 @@ jobs:
       with:
         fetch-depth: 0
     - name: Docker build and push
-      uses: Zilliqa/gh-actions-workflows/actions/ci-dockerized-app-build-push@main
+      uses: Zilliqa/gh-actions-workflows/actions/ci-dockerized-app-build-push@v1
       with:
         file: .github/test/Dockerfile
         push: true
@@ -66,7 +66,7 @@ jobs:
       with:
         fetch-depth: 0
     - name: Docker build and push
-      uses: Zilliqa/gh-actions-workflows/actions/ci-dockerized-app-build-push@main
+      uses: Zilliqa/gh-actions-workflows/actions/ci-dockerized-app-build-push@v1
       with:
         file: .github/test/Dockerfile
         push: true
