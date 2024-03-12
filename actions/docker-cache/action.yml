@@ -25,10 +25,9 @@ outputs:
 runs:
   using: "composite"
   steps:
-  - name: Set cache
-    id: cache
-    env:
-      BRANCH_OR_TAG_NAME: ${{ github.head_ref || github.ref_name }}
+  - name: Set cache for branches
+    id: cache-branches
+    if: startsWith(github.ref, 'refs/heads/v')
     run: |
       if [ "${{ inputs.key }}" = "" ]; then
         echo "cachefrom=" >> $GITHUB_OUTPUT
@@ -37,9 +36,24 @@ runs:
         echo "cachefrom=type=gha,scope=${{ github.event.repository.name }}-${{ inputs.key }}" >> $GITHUB_OUTPUT
         echo "cacheto=type=gha,scope=${{ github.event.repository.name }}-${{ inputs.key }},mode=max" >> $GITHUB_OUTPUT
       elif [ "${{ inputs.backend }}" = "registry" ]; then
-        export SCOPE=$(echo -n "${{ env.BRANCH_OR_TAG_NAME }}" | sed 's/[^[:alnum:]._-]//g')
+        export SCOPE=$(echo -n "${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" | sed 's/[^[:alnum:]._-]//g')
         echo "cachefrom=type=registry,ref=${{ inputs.key }}:$SCOPE" >> $GITHUB_OUTPUT
         echo "cachefromfallback=type=registry,ref=${{ inputs.key }}:${{ github.event.repository.default_branch }}" >> $GITHUB_OUTPUT
         echo "cacheto=type=registry,ref=${{ inputs.key }}:$SCOPE,mode=max" >> $GITHUB_OUTPUT
+      fi
+    shell: bash
+  - name: Set cache for tags
+    id: cache-tags
+    if: startsWith(github.ref, 'refs/tags/v')
+    run: |
+      if [ "${{ inputs.key }}" = "" ]; then
+        echo "cachefrom=" >> $GITHUB_OUTPUT
+        echo "cacheto=" >> $GITHUB_OUTPUT
+      elif [ "${{ inputs.backend }}" = "gha" ]; then
+        echo "cachefrom=type=gha,scope=${{ github.event.repository.name }}-${{ inputs.key }}" >> $GITHUB_OUTPUT
+        echo "cacheto=type=gha,scope=${{ github.event.repository.name }}-${{ inputs.key }},mode=max" >> $GITHUB_OUTPUT
+      elif [ "${{ inputs.backend }}" = "registry" ]; then
+        echo "cachefrom=type=registry,ref=${{ inputs.key }}:${{ github.event.repository.default_branch }}" >> $GITHUB_OUTPUT
+        echo "cacheto=type=registry,ref=${{ inputs.key }}:${{ github.event.repository.default_branch }},mode=max" >> $GITHUB_OUTPUT
       fi
     shell: bash
