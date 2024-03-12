@@ -87,7 +87,7 @@ runs:
   using: "composite"
   steps:
   - name: Docker cache
-    uses: Zilliqa/gh-actions-workflows/actions/docker-cache@devops-1287
+    uses: Zilliqa/gh-actions-workflows/actions/docker-cache@v2
     id: docker-cache
     with:
       backend: ${{ inputs.cache-backend }}
