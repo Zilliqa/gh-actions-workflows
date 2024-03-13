@@ -34,7 +34,7 @@ runs:
       elif [ "${{ inputs.backend }}" = "gha" ]; then
         echo "cachefrom=type=gha,scope=${{ github.event.repository.name }}-${{ inputs.key }}" >> $GITHUB_OUTPUT
         echo "cacheto=type=gha,scope=${{ github.event.repository.name }}-${{ inputs.key }},mode=max" >> $GITHUB_OUTPUT
-      elif [ "${{ inputs.backend }}" = "registry" ] && ([ "${{ github.event_name }}" == "pull_request" ] || [ github.event_name == "push" ]); then
+      elif [ "${{ inputs.backend }}" = "registry" ] && ([ "${{ github.event_name }}" == "pull_request" ] || [ "${{ github.event_name }}" == "push" ]); then
         export SCOPE=$(echo -n "${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" | sed 's/[^[:alnum:]._-]//g')
         echo "cachefrom=type=registry,ref=${{ inputs.key }}:$SCOPE" >> $GITHUB_OUTPUT
         echo "cachefromfallback=type=registry,ref=${{ inputs.key }}:${{ github.event.repository.default_branch }}" >> $GITHUB_OUTPUT
