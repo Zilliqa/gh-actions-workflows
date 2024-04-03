@@ -12,7 +12,7 @@ jobs:
       matrix:
         path: [ci-dockerized-app-build-push, configure-aws-credentials, configure-aws-profile, docker-build-push, docker-cache, generate-tag, terragrunt-deploy]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 

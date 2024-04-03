@@ -51,7 +51,7 @@ runs:
   using: "composite"
   steps:
   - name: Set up QEMU
-    uses: docker/setup-qemu-action@v2
+    uses: docker/setup-qemu-action@v3
   - name: Set up Docker Context for Buildx
     shell: bash
     id: buildx-context

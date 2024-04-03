@@ -65,11 +65,11 @@ jobs:
         done
       shell: bash
     - name: 'Checkout scm ${{ inputs.commitOrTag }}'
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         ref: ${{ inputs.commitOrTag }}
     - name: Configure the cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           ~/.cargo/bin/
@@ -87,7 +87,7 @@ jobs:
     runs-on: ${{ inputs.runner }}
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         ref: ${{ inputs.commitOrTag }}
     - name: Install Rust toolchain
@@ -114,11 +114,11 @@ jobs:
         done
       shell: bash
     - name: 'Checkout scm ${{ inputs.commitOrTag }}'
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         ref: ${{ inputs.commitOrTag }}
     - name: Configure the cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           ~/.cargo/bin/
@@ -152,11 +152,11 @@ jobs:
         done
       shell: bash
     - name: 'Checkout scm ${{ inputs.commitOrTag }}'
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         ref: ${{ inputs.commitOrTag }}
     - name: Configure the cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           ~/.cargo/bin/
