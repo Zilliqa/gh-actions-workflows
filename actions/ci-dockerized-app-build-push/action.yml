@@ -65,6 +65,10 @@ inputs:
     description: 'The key to store/retrieve the cache'
     required: false
     default: ''
+  trivy-scan:
+    description: 'Run Trivy vulnerability scanner before pushing the image'
+    required: false
+    default: false
   secrets:
     description: "List of secrets to expose to the build (e.g., key=string, GIT_AUTH_TOKEN=mytoken)"
     required: false
@@ -134,7 +138,7 @@ runs:
       username: "oauth2accesstoken"
       password: "${{ steps.google-auth.outputs.access_token }}"
   - name: Build and push Docker images
-    uses: Zilliqa/gh-actions-workflows/actions/docker-build-push@v2
+    uses: Zilliqa/gh-actions-workflows/actions/docker-build-push@v3
     id: build-push
     with:
       file: ${{ inputs.file }}
@@ -148,4 +152,5 @@ runs:
         ${{ steps.docker-cache.outputs.cachefrom }}
         ${{ steps.docker-cache.outputs.cachefromfallback }}
       cache-to: ${{ steps.docker-cache.outputs.cacheto }}
+      trivy-scan: ${{ inputs.trivy-scan }}
       secrets: ${{ inputs.secrets }}
