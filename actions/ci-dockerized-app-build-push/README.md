@@ -25,6 +25,7 @@
 |         tag-latest         | string |  false   |              |                            If true add the tag <br>latest                              |
 |         tag-length         | string |  false   |    `"7"`     |        The number of chars composing <br>the tag from the short <br>commit sha         |
 |           target           | string |  false   |              |                         The target to build in <br>the image                           |
+|         trivy-scan         | string |  false   |  `"false"`   |             Run Trivy vulnerability scanner before <br>pushing the image               |
 | workload-identity-provider | string |  false   |              |            The GCP workload identity provider <br>to login to the registry             |
 
 <!-- AUTO-DOC-INPUT:END -->
