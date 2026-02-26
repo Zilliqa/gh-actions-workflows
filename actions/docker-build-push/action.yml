@@ -32,6 +32,10 @@ inputs:
   cache-to:
     description: 'The username to access the registry'
     required: false
+  trivy-scan:
+    description: 'Run Trivy vulnerability scanner before pushing the image'
+    required: false
+    default: false
   secrets:
     description: "List of secrets to expose to the build (e.g., key=string, GIT_AUTH_TOKEN=mytoken)"
     required: false
@@ -69,9 +73,53 @@ runs:
       context: ${{ inputs.context }}
       build-args: ${{ inputs.build-args }}
       pull: ${{ inputs.pull }}
-      push: ${{ inputs.push }}
+      push: ${{ inputs.trivy-scan == 'true' && 'false' || inputs.push }}
+      load: ${{ inputs.trivy-scan == 'true' }}
       target: ${{ inputs.target }}
       tags: ${{ inputs.tags }}
       cache-from: ${{ inputs.cache-from }}
       cache-to: ${{ inputs.cache-to }}
       secrets: ${{ inputs.secrets }}
+  - name: Extract first tag for Trivy scan
+    if: ${{ inputs.trivy-scan == 'true' }}
+    id: trivy-tag
+    shell: bash
+    run: |
+      FIRST_TAG=$(echo "${{ inputs.tags }}" | head -n1 | cut -d',' -f1)
+      echo "image-ref=${FIRST_TAG}" >> $GITHUB_OUTPUT
+  - name: Run Trivy vulnerability scanner
+    if: ${{ inputs.trivy-scan == 'true' }}
+    uses: aquasecurity/trivy-action@0.33.1
+    with:
+      image-ref: ${{ steps.trivy-tag.outputs.image-ref }}
+      format: 'table'
+      exit-code: '0'
+      ignore-unfixed: true
+      vuln-type: 'os,library'
+      severity: 'CRITICAL,HIGH'
+  - name: Run Trivy vulnerability scanner (SARIF)
+    if: ${{ inputs.trivy-scan == 'true' }}
+    uses: aquasecurity/trivy-action@0.33.1
+    with:
+      image-ref: ${{ steps.trivy-tag.outputs.image-ref }}
+      format: 'sarif'
+      output: 'trivy-results.sarif'
+      exit-code: '0'
+      ignore-unfixed: true
+      vuln-type: 'os,library'
+      severity: 'CRITICAL,HIGH'
+      limit-severities-for-sarif: true
+  - name: Upload Trivy scan results to GitHub Security tab
+    uses: github/codeql-action/upload-sarif@v4
+    if: ${{ inputs.trivy-scan == 'true' && always() }}
+    with:
+      sarif_file: 'trivy-results.sarif'
+  - name: Push Docker images
+    if: ${{ inputs.trivy-scan == 'true' && inputs.push == 'true' }}
+    shell: bash
+    run: |
+      TAGS="${{ inputs.tags }}"
+      for tag in $(echo "${TAGS}" | tr ',' '\n'); do
+        tag=$(echo "${tag}" | xargs)
+        [ -n "${tag}" ] && docker push "${tag}"
+      done
