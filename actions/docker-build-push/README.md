@@ -4,18 +4,19 @@
 
 <!-- AUTO-DOC-INPUT:START - Do not remove or modify this section -->
 
-|   INPUT    |  TYPE  | REQUIRED | DEFAULT  |                                      DESCRIPTION                                       |
-|------------|--------|----------|----------|----------------------------------------------------------------------------------------|
-| build-args | string |  false   |          |                              Arguments to build the image                              |
-| cache-from | string |  false   |          |                                    Docker registry                                     |
-|  cache-to  | string |  false   |          |                        The username to access the <br>registry                         |
-|  context   | string |  false   |          |                        The context to build the <br>Dockerfile                         |
-|    file    | string |  false   |          |       The path to the Dockerfile. <br>If not set, it uses <br>the context path.        |
-|    pull    | string |  false   | `"true"` |                               Enable/disable image pull                                |
-|    push    | string |  false   | `"true"` |                               Enable/disable image push                                |
-|  secrets   | string |  false   |          | List of secrets to expose <br>to the build (e.g., key=string, GIT\_AUTH\_TOKEN=mytoken)  |
-|    tags    | string |   true   |          |                                 The tags of the image                                  |
-|   target   | string |  false   |          |                         The target to build in <br>the image                           |
+|   INPUT    |  TYPE  | REQUIRED |  DEFAULT  |                                      DESCRIPTION                                       |
+|------------|--------|----------|-----------|----------------------------------------------------------------------------------------|
+| build-args | string |  false   |           |                              Arguments to build the image                              |
+| cache-from | string |  false   |           |                                    Docker registry                                     |
+|  cache-to  | string |  false   |           |                        The username to access the <br>registry                         |
+|  context   | string |  false   |           |                        The context to build the <br>Dockerfile                         |
+|    file    | string |  false   |           |       The path to the Dockerfile. <br>If not set, it uses <br>the context path.        |
+|    pull    | string |  false   | `"true"`  |                               Enable/disable image pull                                |
+|    push    | string |  false   | `"true"`  |                               Enable/disable image push                                |
+|  secrets   | string |  false   |           | List of secrets to expose <br>to the build (e.g., key=string, GIT\_AUTH\_TOKEN=mytoken)  |
+|    tags    | string |   true   |           |                                 The tags of the image                                  |
+|   target   | string |  false   |           |                         The target to build in <br>the image                           |
+| trivy-scan | string |  false   | `"false"` |             Run Trivy vulnerability scanner before <br>pushing the image               |
 
 <!-- AUTO-DOC-INPUT:END -->
 
