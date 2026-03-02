@@ -89,7 +89,7 @@ runs:
       echo "image-ref=${FIRST_TAG}" >> $GITHUB_OUTPUT
   - name: Run Trivy vulnerability scanner
     if: ${{ inputs.trivy-scan == 'true' }}
-    uses: aquasecurity/trivy-action@0.33.1
+    uses: aquasecurity/trivy-action@97e0b3872f55f89b95b2f65b3dbab56962816478
     with:
       image-ref: ${{ steps.trivy-tag.outputs.image-ref }}
       format: 'table'
@@ -97,9 +97,10 @@ runs:
       ignore-unfixed: true
       vuln-type: 'os,library'
       severity: 'CRITICAL,HIGH'
+      version: v0.69.2
   - name: Run Trivy vulnerability scanner (SARIF)
     if: ${{ inputs.trivy-scan == 'true' }}
-    uses: aquasecurity/trivy-action@0.33.1
+    uses: aquasecurity/trivy-action@97e0b3872f55f89b95b2f65b3dbab56962816478
     with:
       image-ref: ${{ steps.trivy-tag.outputs.image-ref }}
       format: 'sarif'
@@ -109,6 +110,7 @@ runs:
       vuln-type: 'os,library'
       severity: 'CRITICAL,HIGH'
       limit-severities-for-sarif: true
+      version: v0.69.2
   - name: Upload Trivy scan results to GitHub Security tab
     uses: github/codeql-action/upload-sarif@v4
     if: ${{ inputs.trivy-scan == 'true' && always() }}
