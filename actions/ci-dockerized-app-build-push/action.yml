@@ -111,7 +111,7 @@ runs:
 
   - name: Login to Dockerhub
     uses: docker/login-action@v4
-    if: ${{ inputs.registry-username != '' && inputs.registry-password != '' }}
+    if: ${{ inputs.push == 'true' && inputs.registry-username != '' && inputs.registry-password != '' }}
     with:
       username: ${{ inputs.registry-username }}
       password: ${{ inputs.registry-password }}
@@ -119,7 +119,7 @@ runs:
   - name: Configure GCP Credentials
     id: google-auth
     uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3
-    if: ${{ contains(inputs.registry, '.pkg.dev') || contains(inputs.registry, 'gcr.io') }}
+    if: ${{ inputs.push == 'true' && (contains(inputs.registry, '.pkg.dev') || contains(inputs.registry, 'gcr.io')) }}
     with:
       token_format: "access_token"
       workload_identity_provider: ${{ inputs.workload-identity-provider }}
@@ -128,7 +128,7 @@ runs:
 
   - name: Login to GCP registry
     uses: docker/login-action@v4
-    if: ${{ contains(inputs.registry, '.pkg.dev') || contains(inputs.registry, 'gcr.io') }}
+    if: ${{ inputs.push == 'true' && (contains(inputs.registry, '.pkg.dev') || contains(inputs.registry, 'gcr.io')) }}
     with:
       registry: ${{ inputs.registry }}
       username: "oauth2accesstoken"
