@@ -6,9 +6,7 @@ Zilliqa's internal library of reusable GitHub composite actions.
 
 | Action | Description |
 |--------|-------------|
-| [`actions/ci-dockerized-app-build-push`](./actions/ci-dockerized-app-build-push) | Build a Docker image and push it to a GCP Artifact Registry, GCR, or Docker Hub. |
-| [`actions/docker-build-push`](./actions/docker-build-push) | Lower-level Docker build and push step (used internally by `ci-dockerized-app-build-push`). |
-| [`actions/docker-cache`](./actions/docker-cache) | Configure Docker layer caching (registry-backed by default). |
+| [`actions/ci-dockerized-app-build-push`](./actions/ci-dockerized-app-build-push) | Build a Docker image and push it to a GCP Artifact Registry, GCR, or Docker Hub. Includes registry/GHA layer caching, optional Trivy scanning, and SARIF upload. |
 | [`actions/generate-tag`](./actions/generate-tag) | Generate an image tag from the short Git commit SHA. |
 
 Each action's full input/output reference is in its own `README.md`, auto-generated from `action.yml`.

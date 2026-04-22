@@ -26,18 +26,6 @@ jobs:
           filename: "actions/ci-dockerized-app-build-push/action.yml"
           output: "actions/ci-dockerized-app-build-push/README.md"
 
-      - name: Regenerate docker-build-push README
-        uses: tj-actions/auto-doc@b10ceedffd794ec29a8fa8700529f40c1b64a951 # v3.6.0
-        with:
-          filename: "actions/docker-build-push/action.yml"
-          output: "actions/docker-build-push/README.md"
-
-      - name: Regenerate docker-cache README
-        uses: tj-actions/auto-doc@b10ceedffd794ec29a8fa8700529f40c1b64a951 # v3.6.0
-        with:
-          filename: "actions/docker-cache/action.yml"
-          output: "actions/docker-cache/README.md"
-
       - name: Regenerate generate-tag README
         uses: tj-actions/auto-doc@b10ceedffd794ec29a8fa8700529f40c1b64a951 # v3.6.0
         with:
@@ -49,8 +37,6 @@ jobs:
         with:
           files: |
             actions/ci-dockerized-app-build-push/README.md
-            actions/docker-build-push/README.md
-            actions/docker-cache/README.md
             actions/generate-tag/README.md
 
       - name: Commit and push regenerated READMEs

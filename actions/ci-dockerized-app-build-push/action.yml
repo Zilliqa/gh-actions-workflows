@@ -82,11 +82,25 @@ runs:
   using: "composite"
   steps:
   - name: Docker cache
-    uses: Zilliqa/gh-actions-workflows/actions/docker-cache@v4
     id: docker-cache
-    with:
-      backend: ${{ inputs.cache-backend }}
-      key: ${{ inputs.cache-key }}
+    shell: bash
+    run: |
+      if [ "${{ inputs.cache-key }}" = "" ]; then
+        echo "cachefrom=" >> $GITHUB_OUTPUT
+        echo "cacheto=" >> $GITHUB_OUTPUT
+      elif [ "${{ inputs.cache-backend }}" = "gha" ]; then
+        echo "cachefrom=type=gha,scope=${{ github.event.repository.name }}-${{ inputs.cache-key }}" >> $GITHUB_OUTPUT
+        echo "cacheto=type=gha,scope=${{ github.event.repository.name }}-${{ inputs.cache-key }},mode=max" >> $GITHUB_OUTPUT
+      elif [ "${{ inputs.cache-backend }}" = "registry" ] && ([ "${{ github.event_name }}" == "pull_request" ] || [ "${{ github.event_name }}" == "push" ]); then
+        export SCOPE=$(echo -n "${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" | sed 's/[^[:alnum:]._-]//g')
+        echo "cachefrom=type=registry,ref=${{ inputs.cache-key }}:$SCOPE" >> $GITHUB_OUTPUT
+        echo "cachefromfallback=type=registry,ref=${{ inputs.cache-key }}:${{ github.event.repository.default_branch }}" >> $GITHUB_OUTPUT
+        echo "cacheto=type=registry,ref=${{ inputs.cache-key }}:$SCOPE,mode=max" >> $GITHUB_OUTPUT
+      elif [ "${{ inputs.cache-backend }}" = "registry" ] && [ "${{ github.event_name }}" == "release" ]; then
+        echo "cachefrom=type=registry,ref=${{ inputs.cache-key }}:${{ github.event.repository.default_branch }}" >> $GITHUB_OUTPUT
+        echo "cacheto=type=registry,ref=${{ inputs.cache-key }}:${{ github.event.repository.default_branch }},mode=max" >> $GITHUB_OUTPUT
+      fi
+
   - name: Set image tags
     uses: Zilliqa/gh-actions-workflows/actions/generate-tag@v4
     id: image-tags
@@ -94,13 +108,15 @@ runs:
       tag: ${{ inputs.tag }}
       length: ${{ inputs.tag-length }}
       latest: ${{ inputs.tag-latest }}
+
   - name: Login to Dockerhub
     uses: docker/login-action@v4
     if: ${{ inputs.registry-username != '' && inputs.registry-password != '' }}
     with:
       username: ${{ inputs.registry-username }}
       password: ${{ inputs.registry-password }}
-  - name: "Configure GCP Credentials"
+
+  - name: Configure GCP Credentials
     id: google-auth
     uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3
     if: ${{ contains(inputs.registry, '.pkg.dev') || contains(inputs.registry, 'gcr.io') }}
@@ -109,6 +125,7 @@ runs:
       workload_identity_provider: ${{ inputs.workload-identity-provider }}
       service_account: ${{ inputs.service-account }}
       create_credentials_file: true
+
   - name: Login to GCP registry
     uses: docker/login-action@v4
     if: ${{ contains(inputs.registry, '.pkg.dev') || contains(inputs.registry, 'gcr.io') }}
@@ -116,20 +133,85 @@ runs:
       registry: ${{ inputs.registry }}
       username: "oauth2accesstoken"
       password: "${{ steps.google-auth.outputs.access_token }}"
+
+  - name: Set up QEMU
+    uses: docker/setup-qemu-action@v4
+
+  - name: Set up Docker Context for Buildx
+    id: buildx-context
+    shell: bash
+    run: |
+      docker context create buildx-context || true
+
+  - name: Set up Docker Buildx
+    uses: docker/setup-buildx-action@v4
+    with:
+      endpoint: buildx-context
+
   - name: Build and push Docker images
-    uses: Zilliqa/gh-actions-workflows/actions/docker-build-push@v4
     id: build-push
+    uses: docker/build-push-action@v7
     with:
       file: ${{ inputs.file }}
       context: ${{ inputs.context }}
       build-args: ${{ inputs.build-args }}
       pull: ${{ inputs.pull }}
-      push: ${{ inputs.push }}
+      push: ${{ inputs.trivy-scan == 'true' && 'false' || inputs.push }}
+      load: ${{ inputs.trivy-scan == 'true' }}
       target: ${{ inputs.target }}
       tags: ${{ steps.image-tags.outputs.tags }}
-      cache-from: | 
+      cache-from: |
         ${{ steps.docker-cache.outputs.cachefrom }}
         ${{ steps.docker-cache.outputs.cachefromfallback }}
       cache-to: ${{ steps.docker-cache.outputs.cacheto }}
-      trivy-scan: ${{ inputs.trivy-scan }}
       secrets: ${{ inputs.secrets }}
+
+  - name: Extract first tag for Trivy scan
+    if: ${{ inputs.trivy-scan == 'true' }}
+    id: trivy-tag
+    shell: bash
+    run: |
+      FIRST_TAG=$(echo "${{ steps.image-tags.outputs.tags }}" | head -n1 | cut -d',' -f1)
+      echo "image-ref=${FIRST_TAG}" >> $GITHUB_OUTPUT
+
+  - name: Run Trivy vulnerability scanner
+    if: ${{ inputs.trivy-scan == 'true' }}
+    uses: aquasecurity/trivy-action@97e0b3872f55f89b95b2f65b3dbab56962816478
+    with:
+      image-ref: ${{ steps.trivy-tag.outputs.image-ref }}
+      format: 'table'
+      exit-code: '0'
+      ignore-unfixed: true
+      vuln-type: 'os,library'
+      severity: 'CRITICAL,HIGH'
+      version: v0.69.2
+
+  - name: Run Trivy vulnerability scanner (SARIF)
+    if: ${{ inputs.trivy-scan == 'true' }}
+    uses: aquasecurity/trivy-action@97e0b3872f55f89b95b2f65b3dbab56962816478
+    with:
+      image-ref: ${{ steps.trivy-tag.outputs.image-ref }}
+      format: 'sarif'
+      output: 'trivy-results.sarif'
+      exit-code: '0'
+      ignore-unfixed: true
+      vuln-type: 'os,library'
+      severity: 'CRITICAL,HIGH'
+      limit-severities-for-sarif: true
+      version: v0.69.2
+
+  - name: Upload Trivy scan results to GitHub Security tab
+    uses: github/codeql-action/upload-sarif@v4
+    if: ${{ inputs.trivy-scan == 'true' && always() }}
+    with:
+      sarif_file: 'trivy-results.sarif'
+
+  - name: Push Docker images
+    if: ${{ inputs.trivy-scan == 'true' && inputs.push == 'true' }}
+    shell: bash
+    run: |
+      TAGS="${{ steps.image-tags.outputs.tags }}"
+      for tag in $(echo "${TAGS}" | tr ',' '\n'); do
+        tag=$(echo "${tag}" | xargs)
+        [ -n "${tag}" ] && docker push "${tag}"
+      done
