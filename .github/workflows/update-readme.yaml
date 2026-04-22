@@ -14,11 +14,14 @@ jobs:
     # Skip on PRs from forks: PAT_TOKEN cannot push to a fork's branch.
     if: github.event.pull_request.head.repo.full_name == github.repository
     steps:
+      # Uses the default GITHUB_TOKEN (workflow declares contents: write above).
+      # Trade-off: pushes from this workflow won't trigger downstream workflows
+      # (GitHub anti-loop), which is desirable here -- the regen commit only
+      # touches READMEs, no other CI needs to re-run.
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
           ref: ${{ github.head_ref }}
-          token: ${{ secrets.PAT_TOKEN }}
 
       - name: Regenerate ci-dockerized-app-build-push README
         uses: tj-actions/auto-doc@b10ceedffd794ec29a8fa8700529f40c1b64a951 # v3.6.0
