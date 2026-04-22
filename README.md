@@ -26,7 +26,7 @@ jobs:
       - uses: actions/checkout@v6
 
       - name: Build & push image to GCP Artifact Registry
-        uses: Zilliqa/gh-actions-workflows/actions/ci-dockerized-app-build-push@v3
+        uses: Zilliqa/gh-actions-workflows/actions/ci-dockerized-app-build-push@v4
         with:
           file: ./Dockerfile
           tag: europe-west1-docker.pkg.dev/zilliqa-prj/repo/app
@@ -41,12 +41,13 @@ jobs:
 
 ## Versioning
 
-Major version tags (`@v1`, `@v2`, …) are mutable — they always point at the latest release of that major. Minor/patch tags (`@v3.0.0`) are immutable.
+Major version tags (`@v1`, `@v2`, …) are mutable — they always point at the latest release of that major. Minor/patch tags (`@v4.0.0`) are immutable.
 
 | Tag | Status |
 |-----|--------|
-| `@v3` | Current stable. |
-| `@v2` | Frozen — most existing consumers pin here. |
+| `@v4` | Current stable. AWS support removed; GCP + Docker Hub only; Node 24 runtime. |
+| `@v3` | Frozen. |
+| `@v2` | Frozen — most existing consumers still pin here. |
 | `@v1` | Frozen — Node 12 / Node 16 era; migrate off when convenient. |
 
 Each major release may include breaking changes; check the release notes before bumping. Cross-major migration guidance lives in the corresponding GitHub release.
@@ -54,7 +55,7 @@ Each major release may include breaking changes; check the release notes before 
 ## Compatibility notes
 
 - Composite actions in this repo target **Node 24** runtime where the underlying third-party action requires it (e.g., `actions/checkout@v6`, the Docker stack `@v4/@v7`). Self-hosted runners must be on Actions Runner ≥ `2.327.1` and a glibc ≥ 2.31 base image (Ubuntu 22.04+, Debian 12+).
-- AWS support has been removed; Zilliqa workloads run on GCP. Consumers needing AWS authentication should not move to a future `@v4`.
+- AWS support has been removed in `@v4`; Zilliqa workloads run on GCP. Consumers needing AWS authentication should stay on `@v3` or earlier.
 
 ## Contributing
 
