@@ -5,44 +5,52 @@ on:
     branches:
       - main
 
+permissions:
+  contents: write
+
 jobs:
   generate-doc:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        path: [ci-dockerized-app-build-push, configure-aws-credentials, configure-aws-profile, docker-build-push, docker-cache, generate-tag, terragrunt-deploy]
+    # Skip on PRs from forks: PAT_TOKEN cannot push to a fork's branch.
+    if: github.event.pull_request.head.repo.full_name == github.repository
     steps:
-      - uses: actions/checkout@v4
+      # Uses the default GITHUB_TOKEN (workflow declares contents: write above).
+      # Trade-off: pushes from this workflow won't trigger downstream workflows
+      # (GitHub anti-loop), which is desirable here -- the regen commit only
+      # touches READMEs, no other CI needs to re-run.
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
+          ref: ${{ github.head_ref }}
 
-      - name: Run auto-doc
-        uses: tj-actions/auto-doc@v2
+      - name: Regenerate ci-dockerized-app-build-push README
+        uses: tj-actions/auto-doc@b10ceedffd794ec29a8fa8700529f40c1b64a951 # v3.6.0
         with:
-          filename: "actions/${{ matrix.path }}/action.yml"
-          output: "actions/${{ matrix.path }}/README.md"
+          filename: "actions/ci-dockerized-app-build-push/action.yml"
+          output: "actions/ci-dockerized-app-build-push/README.md"
 
-      - name: Run remark
-        uses: tj-actions/remark@v3
+      - name: Regenerate generate-tag README
+        uses: tj-actions/auto-doc@b10ceedffd794ec29a8fa8700529f40c1b64a951 # v3.6.0
+        with:
+          filename: "actions/generate-tag/action.yml"
+          output: "actions/generate-tag/README.md"
+
+      - name: Lint READMEs with remark
+        uses: tj-actions/remark@10fc40701928cbafcc4a2d241679579d218144ff # v3
         with:
           files: |
-            actions/${{ matrix.path }}/README.md
+            actions/ci-dockerized-app-build-push/README.md
+            actions/generate-tag/README.md
 
-      - name: Verify Changed files
-        uses: tj-actions/verify-changed-files@v13
-        id: verify_changed_files
-        with:
-          files: |
-            actions/${{ matrix.path }}/README.md
-      
-      - name: Create Pull Request
-        if: steps.verify_changed_files.outputs.files_changed == 'true'
-        uses: peter-evans/create-pull-request@v6
-        with:
-          base: ${{ github.head_ref }}
-          labels: "merge when passing"
-          title: "Updated ${{ matrix.path }}/README.md"
-          branch: "chore/update-readme/${{ matrix.path }}"
-          commit-message: "Updated ${{ matrix.path }}/README.md"
-          body: "Updated README.md"
-          token: ${{ secrets.PAT_TOKEN }}
+      - name: Commit and push regenerated READMEs
+        shell: bash
+        run: |
+          if [[ -z "$(git status --porcelain actions/)" ]]; then
+            echo "No README changes to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add actions/
+          git commit -m "docs: regenerate composite action READMEs"
+          git push origin HEAD:${{ github.head_ref }}
